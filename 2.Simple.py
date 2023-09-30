@@ -26,9 +26,9 @@ print(i / y)
 #定义方法
 def testm(a, b):
     print(a + b + 1)
-    if a+b < 2:
+    if a + b < 2:
         print("ggg")
-    elif a+b > 3 and (a > 1 or b < 3):
+    elif a + b > 3 and (a > 1 or b < 3):
         print("rrr")
     else:
         print("ttt")
