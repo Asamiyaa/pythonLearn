@@ -1,17 +1,17 @@
 import io
 import sys
 
-with open('somefile.txt','wt') as f:
+with open('somefile.txt', 'wt') as f:
     f.write("abc")
     f.write("ddd今天国庆节")
 
-with open("somefile.txt",'rt') as f:
+with open("somefile.txt", 'rt') as f:
     data = f.read()
     print(data)
 
 #指定编码
 
-with open("somefile.txt",'rt',encoding='latin-1') as f:
+with open("somefile.txt", 'rt', encoding='latin-1') as f:
     data = f.read()
     print(data)
 
@@ -23,15 +23,15 @@ with open('somefile.txt', 'rt', newline='') as f:
 
 #忽略编码错误
 
-with open('somefile.txt', 'rt', encoding='ascii',errors='replace') as f:
+with open('somefile.txt', 'rt', encoding='ascii', errors='replace') as f:
     print(f.read())
 
-with open('somefile.txt', 'rt', encoding='ascii',errors='ignore') as f:
+with open('somefile.txt', 'rt', encoding='ascii', errors='ignore') as f:
     print(f.read())
 
 
 #打印输出至文件中
-with open('somefile.txt','wt') as f:
+with open('somefile.txt', 'wt') as f:
     print('helloworld',file=f)
 
 
@@ -59,10 +59,10 @@ print(*row, sep=',')
 #读写字节数据
 # 在读取二进制数据时，需要指明的是所有返回的数据都是字节字符串格式的，而不是文本字符串。 类似的，在写入的时候，必须保证参数是以字节形式对外暴露数据的对象(比如字节字符串，字节数组对象等)
 
-with open('somefile.bin','wb') as f:
+with open('somefile.bin', 'wb') as f:
     f.write(b'abcddd')
 
-with open('somefile.bin','rb') as f:
+with open('somefile.bin', 'rb') as f:
     print(f.read())
 
 # 在读取二进制数据的时候，字节字符串和文本字符串的语义差异可能会导致一个潜在的陷阱。 特别需要注意的是，索引和迭代动作返回的是字节的值而不是字节字符串
@@ -117,10 +117,10 @@ print(s.read())
 
 import  gzip
 
-with gzip.open('somefile.gz','wt') as f:
+with gzip.open('somefile.gz', 'wt') as f:
     f.write("abdjdncd")
 
-with gzip.open('somefile.gz','rt') as f:
+with gzip.open('somefile.gz', 'rt') as f:
     text = f.read()
     print(text)
 
@@ -204,7 +204,7 @@ def memeroy_map(filename,access=mmap.ACCESS_WRITE):
     return mmap.mmap(fd,size,access=access)
 
 size = 100000
-with open('somefile.txt','wb') as f:
+with open('somefile.txt', 'wb') as f:
     f.seek(size - 1)
     f.write(b'\x00')
 
@@ -216,7 +216,7 @@ print(m[0:10])
 m[0:11]=b'Hellwolddfd'
 m.close()
 
-with open('somefile.txt','rb') as f:
+with open('somefile.txt', 'rb') as f:
     print(f.read(6))
 
 
@@ -312,7 +312,7 @@ I/O系统由一系列的层次构建而成。你可以试着运行下面这个�
 io.TextIOWrapper 是一个编码和解码Unicode的文本处理层， io.BufferedWriter 是一个处理二进制数据的带缓冲的I/O层， io.FileIO 是一个表示操作系统底层文件描述符的原始文件。 增加或改变文本编码会涉及增加或改变最上面的 io.TextIOWrapper 层
 detach() 方法会断开文件的最顶层并返回第二层，之后最顶层就没什么用了。一旦断开最顶层后，你就可以给返回结果添加一个新的最顶层
 '''
-f = open('sample.txt','w')
+f = open('sample.txt', 'w')
 print(f)
 print(f.buffer)
 print(f.buffer.raw)

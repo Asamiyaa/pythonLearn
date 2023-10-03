@@ -9,7 +9,7 @@ rows = [('AA', 39.48, '6/11/2007', '9:36am', -0.18, 181800),
          ('AIG', 71.38, '6/11/2007', '9:36am', -0.15, 195500),
          ('AXP', 62.58, '6/11/2007', '9:36am', -0.46, 935000),
        ]
-with open('stock.csv','w') as f:
+with open('stock.csv', 'w') as f:
     f_csv = csv.writer(f)
     f_csv.writerow(headers)
     f_csv.writerows(rows)
@@ -35,7 +35,7 @@ rows = [{'Symbol':'AA', 'Price':39.48, 'Date':'6/11/2007',
         'Time':'9:36am', 'Change':-0.46, 'Volume': 935000},
         ]
 
-with open('stocks.csv','w') as f:
+with open('stocks.csv', 'w') as f:
     f_csv = csv.DictWriter(f, headers)
     f_csv.writeheader()
     f_csv.writerows(rows)

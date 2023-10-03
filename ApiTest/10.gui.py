@@ -16,6 +16,7 @@ button.pack()
 label.pack()
 
 
+
 # 进入消息循环
 top.mainloop()
 
@@ -36,3 +37,8 @@ top.mainloop()
 # listb.pack()                    # 将小部件放置到主窗口中
 # listb2.pack()
 # root.mainloop()                 # 进入消息循环
+
+
+
+
+

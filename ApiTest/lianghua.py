@@ -3,7 +3,7 @@
 pandas：
 '''
 
-from  Ashare import *
+from Quantification.Ashare import *
 
 # 证券代码兼容多种格式 通达信，同花顺，聚宽
 # sh000001 (000001.XSHG)    sz399006 (399006.XSHE)   sh600519 ( 600519.XSHG )

@@ -21,7 +21,7 @@ print(sorted_list)
 
 import csv
 #csv
-with open('source\\eggs.csv', 'w', newline='') as csvfile:
+with open('../source/eggs.csv', 'w', newline='') as csvfile:
     spamwriter = csv.writer(csvfile, delimiter=' ',
                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
     spamwriter.writerow(['Spam'] * 5 + ['Baked Beans'])
@@ -78,7 +78,7 @@ print(result)
 '''
 
 import os
-filenames = os.listdir(".")
+filenames = os.listdir("..")
 print(filenames)
 #随意性、简化性
 list = [name for name in filenames if name.endswith(".git")]

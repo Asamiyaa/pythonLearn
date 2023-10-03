@@ -4,7 +4,7 @@ import pandas as pd
 
 
 # 腾讯日线
-def get_price_day_tx(code, end_date='', count=10, frequency='1d'):  # 日线获取
+def get_price_day_tx(code, end_date='', count=11, frequency='1d'):  # 日线获取
     unit = 'week' if frequency in '1w' else 'month' if frequency in '1M' else 'day'  # 判断日线，周线，月线
     if end_date:  end_date = end_date.strftime('%Y-%m-%d') if isinstance(end_date, datetime.date) else \
     end_date.split(' ')[0]

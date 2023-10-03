@@ -165,7 +165,7 @@ class linehistory:
         self.history.clear()
 
 
-with open('C:\\Users\\73699\\PycharmProjects\\pythonLearn\\source\\test.txt') as f:
+with open('/source/test.txt') as f:
     lines = linehistory(f)
     for line in lines:
         if 'python' in line:
