@@ -17,7 +17,7 @@ end_date = '2023-09-30'
 stock_symbol = '600588'
 # stock_data = web.DataReader(stock_symbol, data_source='yahoo', start=start_date, end=end_date)  网络不通
 stock_data = ts.get_k_data(code=stock_symbol, start=start_date, end=end_date)
-print(stock_data)
+# print(stock_data)
 
 font = FontProperties(fname='C:/Windows/Fonts/simsun.ttc', size=12)  # 这里使用了宋体作为例子，请根据你的系统和需求选择合适的字体
 
