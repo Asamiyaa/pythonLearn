@@ -68,6 +68,53 @@ print(np.histogram(df_l.values, bins=np.arange(0.0, 1.1, 0.1)))
 
 
 
+'''
+每个列都按照这种分析
+    异常值需要根据具体场景确认，是否去掉
+'''
+print(df['left'].sum())
+# print(df['left'].isnull.sum())
+
+df_s = df['salary']
+print(df_s.value_counts())
+
+#去掉异常值
+# print(df_s.where(df_s != 'nme').dropna())
+
+
+'''
+对比分析
+'''
+df = df.dropna(axis=0,how='any')
+print(df)
+
+'''
+去掉其他异常值
+'''
+df = df[df['satisfaction_level'] <= 1][df['salary'] != 'nme'] [df['left'] < 1]
+print(df)
+
+#以部门分组
+
+print(df.groupby('salary').mean())
+
+#todo:api聚合
+# df.loc[:,['satisfaction_level','salary']].groupby('salary)['sati...level'].apply(lambda x:x.max() - x.min())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
