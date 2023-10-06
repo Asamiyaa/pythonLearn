@@ -97,11 +97,11 @@ def get_more5_zhangting():
 
     temp = pd.merge(filter_ZhangTing_df, dic_df, how="inner",
                     on="code")
+    zhanshi_col = ['code','name','所属行业']
+    filter_ZhangTing_df = temp[zhanshi_col]
     print(temp)
-    #
-    #
-    # file_name = str(datetime.date.today()) + '_Astock_zhangting.csv'
-    # filter_ZhangTing_df.to_csv('./data/'+file_name,index=False)
+    file_name = str(datetime.date.today()) + '_Astock_zhangting.csv'
+    filter_ZhangTing_df.to_csv('./data/'+file_name,index=False)
 
 
     # send.send_msg_toWechat()
