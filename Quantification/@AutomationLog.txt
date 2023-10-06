@@ -1,0 +1,3 @@
+2023-10-06 11:21:50.528 wxauto.py[210] SendMsg -> Find Control Timeout(10s): {Name: '输入', ControlType: EditControl}
+2023-10-06 11:28:23.438 wxauto.py[210] SendMsg -> Find Control Timeout(10s): {Name: '输入', ControlType: EditControl}
+2023-10-06 11:31:04.437 wxauto.py[210] SendMsg -> Find Control Timeout(10s): {Name: '输入', ControlType: EditControl}
