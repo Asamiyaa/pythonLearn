@@ -39,8 +39,12 @@ def my_task():
 
 
 #定时任务
-schedule.every(20).seconds.do(my_task)
+schedule.every(5).seconds.do(my_task)
 
 while True:
+    # try:
     schedule.run_pending()
+    # except:
+        # "---->>> 中断,继续 <-----"
+
     time.sleep(1)  # 在每次循环中等待1秒，避免过多的 CPU 使用66

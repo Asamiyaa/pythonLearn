@@ -69,37 +69,87 @@ warnings.filterwarnings("ignore")
 
 
 import sendToWetchat as send
-
+import akshare as ak
 def get_more5_zhangting():
 
     # try:
 
-    df = ts.get_today_all()
+    # df = ts.get_today_all()  太不稳定了
+
+    aa = ak.stock_zh_a_spot_em()
+    need_col = ['代码', '名称', '涨跌幅', '量比', '5分钟涨跌', '涨速']
+    df = aa[need_col]
+    # df = df[(df['涨跌幅'] > 9) & (df['涨跌幅'] < 11)]
+    # print(df)
+
+    # 重命名
+    df.rename(columns={'代码':'code','名称':'name','涨跌幅':'changepercent'}, inplace=True)
+    print(df)
+
+
+
+
+
     # file_name = str(datetime.date.today()) + '_Astock.csv'
     # df.to_csv('./data/'+file_name)
 
     #__今日涨停的股票__
     # ZhangTing_df = df[(df["changepercent"]>9.5) & (df["changepercent"]<10.5) ]
-    ZhangTing_df = df[(df["changepercent"]>9.5) & (df['code'] < '609999')]
+    ZhangTing_df = df[((df["changepercent"]>9.5) & (df['code'] < '609999') & (df["changepercent"]<11) & ((df['code'] > '309999') | (df['code'] < '111111'))) | (df["changepercent"]>19) ]  #& (df['name']) 不知道如何强转
 
     selected_columns = ['code', 'name']
     filter_ZhangTing_df = ZhangTing_df[selected_columns]
 
-    # 匹配行业输出  - dic构建和merge
+#     # 匹配行业输出  - dic构建和merge
+#     dic_df = pd.read_csv('./Akshare/data2023-10-06_codeName.csv')
+#     dic_df['code'] = dic_df["A股代码"].map(lambda x: str(x))
+#
+#     dic_gn = pd.read_csv('./Akshare/ths_gn.csv')
+#     dic_gn['code'] = dic_gn["code"].map(lambda x: str(x))
+#
+# #-----------------
+#     # dic_df = pd.read_csv('./Akshare/data2023-10-06_codeName.csv')
+#     # dic_df['code'] = dic_df["code"].map(lambda x: str(x))
+#
+#     filter_ZhangTing_df['code'] = filter_ZhangTing_df['code'].apply(str)
+#     dic_df['code'] = dic_df['code'].apply(str)
+# # -----------------
+#     # print(filter_ZhangTing_df['code'])
+#     # print(dic_df['code'])
+
+# 涨停 -- 5% 复用这段
+    # 匹配行业输出
     dic_df = pd.read_csv('./Akshare/data2023-10-06_codeName.csv')
     dic_df['code'] = dic_df["A股代码"].map(lambda x: str(x))
 
     filter_ZhangTing_df['code'] = filter_ZhangTing_df['code'].apply(str)
     dic_df['code'] = dic_df['code'].apply(str)
 
-    print(filter_ZhangTing_df['code'])
-    print(dic_df['code'])
 
-    temp = pd.merge(filter_ZhangTing_df, dic_df, how="inner",
+    # 匹配概念
+    dic_gn = pd.read_csv('./Akshare/ths_gn.csv',encoding='GBK')
+    dic_gn['code'] = dic_gn["code2"].map(lambda x: str(x))
+
+    # filter_ZhangTing_df['code'] = filter_ZhangTing_df['code'].apply(str)
+    # dic_df['code'] = dic_df['code'].apply(str)
+
+    # 放后面无法匹配到00.也就是没有数据的codename
+    temp = pd.merge(filter_ZhangTing_df, dic_gn, how="left",
                     on="code")
-    zhanshi_col = ['code','name','所属行业']
+    temp_col = ['code','name','hyname']
+    temp = temp[temp_col]
+    temp = pd.merge(temp, dic_df, how="left",
+                    on="code")
+
+    zhanshi_col = ['code','name','所属行业','hyname']
     filter_ZhangTing_df = temp[zhanshi_col]
-    print(temp)
+    # 过滤sT
+    # filter_ZhangTing_df = filter_ZhangTing_df[("ST" not in filter_ZhangTing_df['name'].__str__())]
+    # filter_ZhangTing_df = filter_ZhangTing_df[((filter_ZhangTing_df['code'] < '609999') & (filter_ZhangTing_df['changepercent'] > 9.5) ) | ((filter_ZhangTing_df['code']) & (filter_ZhangTing_df[''])) ]
+    filter_ZhangTing_df['name'] = filter_ZhangTing_df['name'].astype(str)
+    filter_ZhangTing_df = filter_ZhangTing_df[~filter_ZhangTing_df['name'].str.contains('ST')]
+
+    # print(temp)
     file_name = str(datetime.date.today()) + '_Astock_zhangting.csv'
     filter_ZhangTing_df.to_csv('./data/'+file_name,index=False)
 
@@ -109,24 +159,81 @@ def get_more5_zhangting():
     # print(ZhangTing_df.head(100))
 
     # More5_df = df[(df["changepercent"]>5 & (df['changepercent']<10.5))]    #这种过滤方式错误，暂时没想到 - 不熟练  , api过滤简化，这里没陈工
-    More5_df = df[(df["changepercent"]>5) & (df['changepercent']<9.5) & (df['code'] < '609999')]
+    More5_df = df[(df["changepercent"]>5) & (df['changepercent']<9.5) & (((df['code'] < '609999') & (df['code'] > '399999')) | (df['code'] < '111111'))]
+
+    print("----++")
+    print(df)
+    print("----$$")
+    print(More5_df)
+
+
+    More5_df = More5_df[~More5_df['name'].str.contains('ST')]
     code_names = [More5_df["code"],More5_df["name"]]
     # print(code_names)
 
     New_pd = pd.DataFrame(code_names)
+    print("<---")
+    print(New_pd)
     #表格是横着的转竖
     New_pd = New_pd.T
     #过滤只考虑600/300
     # raise KeyError(key) from err
     # New2_pd = df[New_pd["code"].__str__().__contains__("600") & New_pd["code"].__str__().__contains__("300")]
     # print(New_pd['code'])
+
+    #为什么这里变了。上面code是int,下面是str???
+
     New2_pd = New_pd[New_pd['code'] < '609999']  #pandas.errors.IndexingError: Unalignable boolean Series provided as indexer (index of the boolean Series and of the indexed object do not match).
     # 为什么上面也是这么比较的呀？
     # New2_pd = df[New_pd['code'].reset_index(drop=True) < '609999']
 
+    # 匹配行业输出
+    dic_df = pd.read_csv('./Akshare/data2023-10-06_codeName.csv')
+    dic_df['code'] = dic_df["A股代码"].map(lambda x: str(x))
+
+    New2_pd['code'] = New2_pd['code'].apply(str)
+    dic_df['code'] = dic_df['code'].apply(str)
+
+    # 匹配概念
+    dic_gn = pd.read_csv('./Akshare/ths_gn.csv', encoding='GBK')
+    dic_gn['code'] = dic_gn["code2"].map(lambda x: str(x))
+
+    # filter_ZhangTing_df['code'] = filter_ZhangTing_df['code'].apply(str)
+    # dic_df['code'] = dic_df['code'].apply(str)
+
+    # 放后面无法匹配到00.也就是没有数据的codename
+    temp = pd.merge(New2_pd, dic_gn, how="left",
+                    on="code")
+    temp_col = ['code', 'name', 'hyname']
+    temp = temp[temp_col]
+    temp = pd.merge(temp, dic_df, how="left",
+                    on="code")
+
+    more5_col = ['code', 'name', '所属行业', 'hyname']
+    filter_more5_df = temp[more5_col]
+    # 过滤sT
+    # filter_ZhangTing_df = filter_ZhangTing_df[("ST" not in filter_ZhangTing_df['name'].__str__())]
+    # filter_ZhangTing_df = filter_ZhangTing_df[((filter_ZhangTing_df['code'] < '609999') & (filter_ZhangTing_df['changepercent'] > 9.5) ) | ((filter_ZhangTing_df['code']) & (filter_ZhangTing_df[''])) ]
+    # df['name'] = filter_more5_df['name'].astype(str)
+    print("------------>>")
+    print(filter_more5_df)
+    filter_more5_df = filter_more5_df[~df['name'].astype(str).str.contains('ST')]
+
+
     file_name = str(datetime.date.today()) + '_Astock_more5.csv'
     file_path = './data/'+file_name
-    New2_pd.to_csv(file_path,index=False)
+    filter_more5_df.to_csv(file_path,index=False)
+
+    # filter_more5_df['name'] = filter_more5_df['name'].apply(lambda x: x.encode('GBK').decode('utf-8'))
+    # filter_ZhangTing_df['name'] = filter_ZhangTing_df['name'].apply(lambda x: x.encode('GBK').decode('utf-8'))
+    # filter_more5_df['name'] = filter_more5_df['name'].apply(lambda x: x.encode('utf-8').decode('latin1'))
+    # filter_ZhangTing_df['name'] = filter_ZhangTing_df['name'].apply(lambda x: x.encode('utf-8').decode('latin1'))
+
+    import syncFeishu
+    print(filter_more5_df)
+    syncFeishu.send(filter_more5_df.to_string())  ##to_json这里乱码
+    syncFeishu.send(filter_ZhangTing_df.to_string())
+
 
 
         # send.send_msg_toWechat(New2_pd.to_string())
