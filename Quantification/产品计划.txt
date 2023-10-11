@@ -18,6 +18,31 @@ pre
 
 
 
+
+--浏览器插件  -- 借鉴已有的  github -> 修改 <--自适应   --> 是不是只能做简单的浏览查看无法计算，输出？
+        0.股票基金管家 - 上班盯盘助手  --  自己当前在用的插件这个是如何开发的  --> 实现 --> 加入自己的计算
+        1.https://github.com/xioasa/stock_fund_page
+        2.https://fasionchan.com/chrome-extensions/quick-start/getting-started/
+        3.https://www.cnblogs.com/liuxianan/p/chrome-plugin-develop.html
+        4.https://github.com/sunguide/gupiao
+        5.股票基金助手 - 盯盘神器(Pro)
+
+==========>>>>> 直接页面打开问财搜不就行了。还整的这么复杂，饶了这么大圈？？？？？
+    https://www.bilibili.com/video/BV1NP411C7UU/?vd_source=1138e0bd4d669ff2571d56c9377aa33d
+
+******** 20231011****柳暗花明又一村，自己饶了半天原来可以这样解决，半自动化监盘工具 **********
+
+        1.查看分时图、日k图
+        2.条件单快速根据已有的涨停价设置值
+        3.结合 *** 网页版问财 *** 完成其他高级操作
+
+=====
+
+一些接口：https://www.cnblogs.com/interdrp/p/14159671.html
+        https://www.jisilu.cn/question/449583?show_all_answer-TRUE__item_id-4038356__answer_id-4038356__single-TRUE#!answer_4038356
+
+--对比新加入的5%和涨停
+--给插件提供更多功能，自己在意的，比如情绪指标维度、核心的股观察、k线
 --8.涨停时间
 --根据涨速、涨跌幅等信息动态获取信息、排序
 --自己关注的分时、日k - 打板

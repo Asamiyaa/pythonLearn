@@ -33,13 +33,15 @@ import datetime
 import Main
 import schedule
 import time
+from FromPage import *
 def my_task():
-  Main.get_more5_zhangting()
-  print("====get_more5_zhangting====")
+  # Main.get_more5_zhangting()
+  get()
+  # print("====get_more5_zhangting====")
 
 
 #定时任务
-schedule.every(5).seconds.do(my_task)
+schedule.every(30).seconds.do(my_task)
 
 while True:
     # try:
