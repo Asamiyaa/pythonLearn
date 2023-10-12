@@ -39,6 +39,8 @@ pre
 
 
 通过自定义列表，通过find参数排在 热度棒 前面
+通知、对于新加入的5%以及新涨停
+
 =====
 
 一些接口：https://www.cnblogs.com/interdrp/p/14159671.html
