@@ -5,8 +5,8 @@ import requests
 本文件主要实现通过企业微信应用给企业成员发消息
 '''
 
-CORP_ID = "ww40c93947f3952c6f"
-SECRET = "2HIIpgdpbEKljzUxcnpk3iJ8WVhne88URlaOslIbb0I"
+CORP_ID = "dfdfdf"
+SECRET = "dfdfdf"
 
 class WeChatPub:
     s = requests.session()
