@@ -23,22 +23,28 @@ https://github.com/zsrl/pywencai
 import pywencai
 import pandas as pd
 from datetime import date
-from datetime import datetime
+from datetime import datetime,timedelta
 # from openpyxl import Workbook
 # from openpyxl.utils.dataframe import dataframe_to_rows
 import xlwings as xw
 import warnings
 import Quantification.sendToWetchat as wx
-
+from workalendar.asia import China
 
 warnings.filterwarnings("ignore")
 def get():
-
-
-
-
+    # 创建一个中国日历对象
+    cal = China()
     # print("=========== zt =============")
     current_date = date.today()
+
+    # 判断今天是否是节假日
+    if not cal.is_working_day(current_date):
+        # print("")
+    # else:
+        # 获取前一个工作日的日期
+        current_date = cal.find_following_working_day(current_date - timedelta(days=1))
+
     cur_date_str =  '[' + str(current_date.strftime("%Y%m%d")) + ']'
 
     res_zt = pywencai.get(query='今日涨停和涨停原因非ST 首次涨停时间排序 行业', sort_key='', sort_order='涨停类型')
@@ -73,6 +79,8 @@ def get():
                   '所属同花顺行业',
                   '涨停价'+ cur_date_str
                   ]
+    # print("--------zhanban--------")
+    # print(res_zb)
 
     # file_name = 'zb.csv'
     # res[filter_col].to_csv('./data/' + file_name, index=False)
@@ -83,7 +91,7 @@ def get():
 
 
     ret_rqb = pywencai.get(query='当前人气排名 行业 ', find=maodian_hx)
-    filter_col_hx = ['code', '股票简称', '个股热度排名'+cur_date_str ,'最新涨跌幅','最新价',
+    filter_col_hx = ['code', '股票简称', '最新涨跌幅','最新价',#'个股热度排名'+cur_date_str ,
                     '所属同花顺行业','所属概念'
                      ]
 
@@ -171,8 +179,14 @@ def get():
 
     # 将DataFrame写入Excel的指定单元格
     # workbook.get_sheet_by_name("Sheet1").
-    compare_and_notify("zt",sheet2, res_zt[filter_col_zt])
-    sheet2.range('A1').value = res_zt[filter_col_zt]  # 将DataFrame写入A1单元格，xlwings会自动处理整个DataFrame
+    is_refresh = compare_and_notify("zt",sheet2, res_zt[filter_col_zt])
+
+    #写入之前clear ,避免和昨天的混淆
+    #如果compare为False,也没有必要写入，减少磁盘
+
+    if is_refresh:
+        clear_and_setFormat(sheet2)
+        sheet2.range('A1').value = res_zt[filter_col_zt]  # 将DataFrame写入A1单元格，xlwings会自动处理整个DataFrame
 
     #
     # # 创建第二个sheet页并写入第二个DataFrame数据
@@ -182,8 +196,11 @@ def get():
     sheet3=workbook.sheets['Sheet3']
     # for row in dataframe_to_rows(res_dy5, index=False, header=True):#[filter_col_dy5]
     #     sheet2.append(row)
-    compare_and_notify("dy5",sheet3, res_dy5[filter_col_dy5])
-    sheet3.range('A1').value = res_dy5[filter_col_dy5]
+    is_refresh = compare_and_notify("dy5",sheet3, res_dy5[filter_col_dy5])
+    if is_refresh:
+        print("---sheet3-refresh-")
+        clear_and_setFormat(sheet3)
+        sheet3.range('A1').value = res_dy5[filter_col_dy5]
 
 
     #
@@ -192,8 +209,11 @@ def get():
     sheet4=workbook.sheets['Sheet4']
     # for row in dataframe_to_rows(res_zb, index=False, header=True):#[filter_col_zb]
     #     sheet3.append(row)
-    compare_and_notify("zb",sheet4,res_zb[filter_col_zb])
-    sheet4.range('A1').value = res_zb[filter_col_zb]
+    is_refresh = compare_and_notify("zb",sheet4,res_zb[filter_col_zb])
+    # print("===sheet4===",is_refresh)
+    if is_refresh:
+        clear_and_setFormat(sheet4)
+        sheet4.range('A1').value = res_zb[filter_col_zb]
 
 
 
@@ -254,13 +274,20 @@ def get():
     #------------------
 
     #写最新信息到文档
+    is_refresh = compare_and_notify("rqb",sheet5,ret_rqb[filter_col_hx])
+    if is_refresh:
+        clear_and_setFormat(sheet5)
+        sheet5.range('A1').value = ret_rqb[filter_col_hx]
 
-    sheet5.range('A1').value = ret_rqb[filter_col_hx]
+
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
     # workbook.save('./data/stronger.xlsx')    save会导致出现每次一个文件
 
 
+def clear_and_setFormat(sheet):
+    sheet.clear_contents()
+    # sheet.range('A1').expand().number_format = '@' #先清空，后这么设置不生效
 
 
 import Quantification.send.Qiyewx as qywx
@@ -281,7 +308,7 @@ def compare_and_notify(msg_type,current_sheet,filter_ret_x):
         data_before['code']
     except:
         print("---code is None---")
-        return
+        return True
 
 
     # 两个中code类型不同  -> 为什么有的DataFrame不能是哦那个
@@ -292,13 +319,22 @@ def compare_and_notify(msg_type,current_sheet,filter_ret_x):
     data_before.reset_index(drop=True)
     filter_ret_x.reset_index(drop=True)
 
+    # print("没加载进去吗?",data_before)
+
     merged_df = pd.merge(data_before, filter_ret_x, on='code', how='outer', indicator=True)
+
+    # print("--sheet3 -compaer")
+    # print(data_before)
+    # print(filter_ret_x)
+
     # print("---",merged_df)
     # print("====",data_before)
     # print("+++",ret_rqb[filter_col_hx])
 
     # 只保留来自左边DataFrame的行（_merge列的值为'left_only'）
-    diff_df_left_xzb = merged_df[merged_df['_merge'] == 'left_only']
+    #去掉原因是：炸板有对应的语句查询无需这里对比
+
+    #把不经常用的左连接放到了下面，减少代码操作
     diff_df_right_xzt = merged_df[merged_df['_merge'] == 'right_only']
 
     # print("--------1--------")
@@ -310,35 +346,64 @@ def compare_and_notify(msg_type,current_sheet,filter_ret_x):
 
     notify_col_left = ['code', '股票简称_x']
     notify_col_right = ['code', '股票简称_y']
+    #
+    # #往下移动，减少代码执行，早点return
+    # diff_df_left_xzb = merged_df[merged_df['_merge'] == 'left_only']
+    # #左连接存在说明老数据多，现在清理下，比如当天清理昨天也是这个道理，不用发消息，自动退出就行
+    # if not diff_df_left_xzb.empty:
+    #     return True;
 
 
-    if not diff_df_left_xzb.empty:
-        diff_df_left_xzb = diff_df_left_xzb[notify_col_left].reset_index(drop=True)
-        msg = diff_df_left_xzb.to_string(header=False)
-        # print("--->>notify me <----",diff_df_left_xzb[notify_col])
-        # wx.send_msg_toWechat(msg)
-        if msg_type == 'zt':
-            msg = "=========zt=========\n" + msg
-        if msg_type == 'dy5':
-            msg = "=========dy5=========\n" + msg
-        if msg_type == 'zb':
-            msg = "=========zb=========\n" + msg
 
-        qywx.send_text(msg)
+
+
+    '''
+    # diff_df_left_xzb = diff_df_left_xzb[notify_col_left].reset_index(drop=True)
+    # msg = diff_df_left_xzb.to_string(header=False,index=False)
+    # # print("--->>notify me <----",diff_df_left_xzb[notify_col])
+    # # wx.send_msg_toWechat(msg)
+    # if msg_type == 'zt':
+    #     msg = "============zt============\n" + msg
+    # if msg_type == 'dy5':
+    #     msg = "============dy5============\n" + msg
+    # if msg_type == 'zb':
+    #     msg = "============zb============\n" + msg
+    #
+    # qywx.send_text(msg)
+    '''
+
 
     if not diff_df_right_xzt.empty:
         diff_df_right_xzt =  diff_df_right_xzt[notify_col_right].reset_index(drop=True)
-        msg = diff_df_right_xzt.to_string(header=False)
+        msg = diff_df_right_xzt.to_string(header=False,index=False)
         # print("--->>notify me <----",)
         # wx.send_msg_toWechat(msg)
         if msg_type == 'zt':
-            msg = "=========zt=========\n" + msg
+            msg = "============zt============\n" + msg
         if msg_type == 'dy5':
-            msg = "=========dy5=========\n" + msg
+            msg = "============dy5============\n" + msg
         if msg_type == 'zb':
-            msg = "=========zb=========\n" + msg
+            msg = "============zb============\n" + msg
+        if msg_type == 'rqb':
+            return True
 
         qywx.send_text(msg)
+
+        return True
+
+
+    #往下移动，减少代码执行，早点return
+    diff_df_left_xzb = merged_df[merged_df['_merge'] == 'left_only']
+    # print("左连接",diff_df_left_xzb)
+    #左连接存在说明老数据多，现在清理下，比如当天清理昨天也是这个道理，不用发消息，自动退出就行
+    if not diff_df_left_xzb.empty:
+        return True
+
+
+
+    return False
+
+
 
 
 
