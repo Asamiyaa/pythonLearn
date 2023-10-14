@@ -48,6 +48,8 @@ https://github.com/myl9361/MYLStockChartDemo
 --五日线 - 分时查看  1.不用根据数据手工绘制 2.而是查看借助东方财富网的网页版，可以嵌套进来
 https://github.com/yangsanning/StockView
 
+*** 已使用 ***  五日线，分时小图：http://www.galaxystatistics.com/excel/html/webPC62.html
+
 
 通过自定义列表，通过find参数排在 热度棒 前面
 通知、对于新加入的5%以及新涨停

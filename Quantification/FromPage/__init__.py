@@ -7,6 +7,7 @@
 import datetime
 
 from Quantification.FromPage.fenshi_rik import geturl
+from Quantification.FromPage.ths_zixuan import get_ths_zixuan
 from Quantification.FromPage.zhijiehuoqutupian import get_k_jpg
 
 # url = 'http://www.iwencai.com/stockpick/load-data?rsh=3&typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E4%BB%8A%E6%97%A5%E6%B6%A8%E5%81%9C%E5%92%8C%E6%B6%A8%E5%81%9C%E5%8E%9F%E5%9B%A0%E9%9D%9EST+%E9%A6%96%E6%AC%A1%E6%B6%A8%E5%81%9C%E6%97%B6%E9%97%B4%E6%8E%92%E5%BA%8F&queryarea='
@@ -91,15 +92,27 @@ def get():
     # res[filter_col].to_csv('./data/' + file_name, index=False)
     # print(res)
 
-    #自定义锚点，通过find带入
-    maodian_hx = ['002855','600588']
 
 
-    ret_rqb = pywencai.get(query='当前人气排名 行业 ', find=maodian_hx)
+    ret_rqb = pywencai.get(query='当前人气排名 行业 ')
     filter_col_hx = ['code', '股票简称', '最新涨跌幅','最新价',#'个股热度排名'+cur_date_str ,
                     '所属同花顺行业','所属概念'
                      ]
 
+    # 自定义锚点，通过find带入
+    # 自选
+    # maodian_hx = ['002855', '600588']
+    df = get_ths_zixuan()
+    zixuan = df['代码'].values.tolist()
+    # print("===自选---", zixuan)
+
+    # ddf = pd.DataFrame
+    ret_zixuangu = pywencai.get(query='集合竞价 涨速 最高板块 ', find=zixuan)
+    # ret_zixuangu.to_csv("./FromPage/zixuan.csv")
+    # print("==zixuan---",ret_zixuangu)
+    filter_col_zixuangu = ['股票代码','股票简称', '最新涨跌幅', '最新价', '最新涨跌幅'# '个股热度排名'+cur_date_str ,
+                    # '所属同花顺行业', '所属概念'
+                     ]
 
     #写到一个excel不同sheet
     # with pd.ExcelWriter('./data/stronger.xlsx') as writer:
@@ -142,7 +155,7 @@ def get():
         # print("--2--")
         workbook = xw.Book()
         # 创建其他工作表并指定名称
-        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5']
+        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5','Sheet6']
         # 使用循环创建并指定多个工作表的名称
         for sheet_name in sheet_names:
             workbook.sheets.add(sheet_name,after=workbook.sheets[-1])
@@ -304,6 +317,15 @@ def get():
 
         # get_k_jpg(sheet5)
 
+
+    #自选股这里直接保存，不判断是否存在问题
+    sheet6 = workbook.sheets['Sheet6']
+    # is_refresh = compare_and_notify("zixuangu", sheet5, ret_zixuangu[filter_col_zixuangu])
+    # if is_refresh:
+    # clear_and_setFormat(sheet5)
+    ret_zixuangu = get_fill_url(ret_zixuangu)
+    filter_col_zixuangu.append('url')
+    sheet6.range('A1').value = ret_zixuangu[filter_col_zixuangu]
 
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
