@@ -6,6 +6,8 @@
 '''
 import datetime
 
+from Quantification.FromPage.fenshi_rik import geturl
+
 # url = 'http://www.iwencai.com/stockpick/load-data?rsh=3&typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E4%BB%8A%E6%97%A5%E6%B6%A8%E5%81%9C%E5%92%8C%E6%B6%A8%E5%81%9C%E5%8E%9F%E5%9B%A0%E9%9D%9EST+%E9%A6%96%E6%AC%A1%E6%B6%A8%E5%81%9C%E6%97%B6%E9%97%B4%E6%8E%92%E5%BA%8F&queryarea='
 # response = requests.get(url)
 #
@@ -53,8 +55,8 @@ def get():
                   '首次涨停时间'+cur_date_str,'涨停原因类别'+cur_date_str,'涨停类型'+cur_date_str,
                   '连续涨停天数'+cur_date_str,'几天几板' + cur_date_str,
                   '涨停封单量'+cur_date_str,'涨停封单额'+cur_date_str,'涨停开板次数'+cur_date_str
-
                   ]
+
     # print(res[filter_col])
     # file_name = 'zt.csv'
     # res_zt[filter_col].to_csv('./data/' + file_name, index=False)
@@ -67,6 +69,7 @@ def get():
                   '成交量' + cur_date_str, '所属同花顺行业',
                   '涨停价'+ cur_date_str
                   ]
+
     # file_name = 'dy5.csv'
     # res[filter_col].to_csv('./data/' + file_name, index=False)
 
@@ -79,6 +82,7 @@ def get():
                   '所属同花顺行业',
                   '涨停价'+ cur_date_str
                   ]
+
     # print("--------zhanban--------")
     # print(res_zb)
 
@@ -94,6 +98,7 @@ def get():
     filter_col_hx = ['code', '股票简称', '最新涨跌幅','最新价',#'个股热度排名'+cur_date_str ,
                     '所属同花顺行业','所属概念'
                      ]
+
 
     #写到一个excel不同sheet
     # with pd.ExcelWriter('./data/stronger.xlsx') as writer:
@@ -186,6 +191,10 @@ def get():
 
     if is_refresh:
         clear_and_setFormat(sheet2)
+        res_zt = get_fill_url(res_zt)
+        #添加url列
+        filter_col_zt.append('url')
+
         sheet2.range('A1').value = res_zt[filter_col_zt]  # 将DataFrame写入A1单元格，xlwings会自动处理整个DataFrame
 
     #
@@ -198,8 +207,10 @@ def get():
     #     sheet2.append(row)
     is_refresh = compare_and_notify("dy5",sheet3, res_dy5[filter_col_dy5])
     if is_refresh:
-        print("---sheet3-refresh-")
+        # print("---sheet3-refresh-")
         clear_and_setFormat(sheet3)
+        res_dy5 = get_fill_url(res_dy5)
+        filter_col_dy5.append('url')
         sheet3.range('A1').value = res_dy5[filter_col_dy5]
 
 
@@ -213,6 +224,8 @@ def get():
     # print("===sheet4===",is_refresh)
     if is_refresh:
         clear_and_setFormat(sheet4)
+        res_zb = get_fill_url(res_zb)
+        filter_col_zb.append('url')
         sheet4.range('A1').value = res_zb[filter_col_zb]
 
 
@@ -277,6 +290,8 @@ def get():
     is_refresh = compare_and_notify("rqb",sheet5,ret_rqb[filter_col_hx])
     if is_refresh:
         clear_and_setFormat(sheet5)
+        ret_rqb = get_fill_url(ret_rqb)
+        filter_col_hx.append('url')
         sheet5.range('A1').value = ret_rqb[filter_col_hx]
 
 
@@ -284,10 +299,41 @@ def get():
     print('-- refresh --',datetime.now(),"-------")
     # workbook.save('./data/stronger.xlsx')    save会导致出现每次一个文件
 
-
 def clear_and_setFormat(sheet):
     sheet.clear_contents()
     # sheet.range('A1').expand().number_format = '@' #先清空，后这么设置不生效
+
+def get_fill_url(df):
+    #便利DataFrame
+    # 遍历行
+
+    #不传sheet ,传 DataFrame进去
+    # num_rows = sheet.api.UsedRange.Rows.Count
+    # print("--num_rows--",num_rows)
+    #
+    # # 遍历Sheet中的每一行
+    # for row in range(1, num_rows + 1):
+    #     # 获取指定行的数据（假设是第1列）
+    #     # cell_value = xw.Range(sheet, (row, 1)).value
+    #     cell_value = sheet.range('B2').value
+    #     print(f'Row {row}: {cell_value}')
+    #     print("sheet row items ")
+    #     # print(f'code: {sheet_row["code"]}')
+    #     # #获取超链接
+    #     # sheet_row['name'] = geturl(sheet_row['code'])
+
+    #添加新列  -- 不用循环吗？
+    # df['url'] = []
+    # for index,row in df.iterrows():
+    #     # print("-------df -----",index,row['code'])
+    #     # df.iat[index, 0] = geturl(row['code'])
+    #     df.insert()['url'] = geturl(row['code'])
+    #     print(df.to_string())
+    # 为DataFrame添加新列url，使用apply函数调用geturl函数
+    df['url'] = df['code'].apply(geturl)
+    # print("===>>",df['url'].to_string())
+
+    return df
 
 
 import Quantification.send.Qiyewx as qywx
@@ -307,7 +353,7 @@ def compare_and_notify(msg_type,current_sheet,filter_ret_x):
     try:
         data_before['code']
     except:
-        print("---code is None---")
+        # print("---code is None---")
         return True
 
 

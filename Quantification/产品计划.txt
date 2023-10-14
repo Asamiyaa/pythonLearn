@@ -38,6 +38,17 @@ pre
 
 
 
+----其他问财接口---
+--不可用，需修改 https://github.com/GraySilver/wencai  wencai是i问财的策略回测接口的Pythonic工具包，满足量化爱好者和数据分析师在量化方面的需求
+--实践？？？sqlibhttps://github.com/zhostev/sqlib#%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97
+--获取异动    https://github.com/mailong88/iwencai
+https://github.com/myl9361/MYLStockChartDemo
+
+
+--五日线 - 分时查看  1.不用根据数据手工绘制 2.而是查看借助东方财富网的网页版，可以嵌套进来
+https://github.com/yangsanning/StockView
+
+
 通过自定义列表，通过find参数排在 热度棒 前面
 通知、对于新加入的5%以及新涨停
 
