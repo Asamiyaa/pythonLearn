@@ -7,6 +7,7 @@
 import datetime
 
 from Quantification.FromPage.fenshi_rik import geturl
+from Quantification.FromPage.zhijiehuoqutupian import get_k_jpg
 
 # url = 'http://www.iwencai.com/stockpick/load-data?rsh=3&typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E4%BB%8A%E6%97%A5%E6%B6%A8%E5%81%9C%E5%92%8C%E6%B6%A8%E5%81%9C%E5%8E%9F%E5%9B%A0%E9%9D%9EST+%E9%A6%96%E6%AC%A1%E6%B6%A8%E5%81%9C%E6%97%B6%E9%97%B4%E6%8E%92%E5%BA%8F&queryarea='
 # response = requests.get(url)
@@ -197,6 +198,9 @@ def get():
 
         sheet2.range('A1').value = res_zt[filter_col_zt]  # 将DataFrame写入A1单元格，xlwings会自动处理整个DataFrame
 
+        # 添加图片列
+        get_k_jpg(sheet2)
+
     #
     # # 创建第二个sheet页并写入第二个DataFrame数据
     # # sheet2 = workbook.create_sheet(title='Sheet2')
@@ -213,6 +217,8 @@ def get():
         filter_col_dy5.append('url')
         sheet3.range('A1').value = res_dy5[filter_col_dy5]
 
+        get_k_jpg(sheet3)
+
 
     #
     # sheet3 = workbook.active
@@ -227,6 +233,8 @@ def get():
         res_zb = get_fill_url(res_zb)
         filter_col_zb.append('url')
         sheet4.range('A1').value = res_zb[filter_col_zb]
+
+        get_k_jpg(sheet4)
 
 
 
@@ -294,12 +302,21 @@ def get():
         filter_col_hx.append('url')
         sheet5.range('A1').value = ret_rqb[filter_col_hx]
 
+        # get_k_jpg(sheet5)
+
 
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
     # workbook.save('./data/stronger.xlsx')    save会导致出现每次一个文件
 
 def clear_and_setFormat(sheet):
+    # 获取所有图片对象
+    pictures = sheet.pictures
+
+    # 删除所有图片
+    for picture in pictures:
+        picture.delete()
+
     sheet.clear_contents()
     # sheet.range('A1').expand().number_format = '@' #先清空，后这么设置不生效
 
@@ -334,6 +351,9 @@ def get_fill_url(df):
     # print("===>>",df['url'].to_string())
 
     return df
+
+
+
 
 
 import Quantification.send.Qiyewx as qywx

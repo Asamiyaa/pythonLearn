@@ -1,0 +1,81 @@
+<!--<html>-->
+<!--this is js-test-->
+<!--<a href = "javascript:void(0)" onclick = "document.getElementById('1').style.display='block'">请点这里</a>-->
+<!--<SCRIPT id = "1" LANGUAGE="javascript">-->
+<!--window.open ('https://quote.eastmoney.com/concept/sz000413.html', 'newwindow', 'height=100, width=400, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=n o, status=no')-->
+<!--</SCRIPT>-->
+
+<!--&lt;!&ndash;HTML&ndash;&gt;-->
+<!--<body style="background-color: pink;">-->
+<!--    <p>某商品</p>-->
+<!--    <div id="cont_b" class="cont">-->
+<!--        <p>详情页</p>-->
+<!--    </div>-->
+<!--</body>-->
+<!--.cont {-->
+<!--    display: block;-->
+<!--    position: fixed;-->
+<!--    top: 25%;-->
+<!--    left: 25%;-->
+<!--    width: 50%;-->
+<!--    height: 50%;-->
+<!--    padding: 20px;-->
+<!--    border: 10px solid #ddd;-->
+<!--    background-color: lightblue;-->
+<!--    color: white;-->
+<!--    z-index:1;-->
+<!--    overflow: auto;-->
+<!--} -->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<script id = "1">
+    // 获取搜索框元素（假设搜索框的id为"kw"）
+var searchBox = document.getElementById("kw");
+
+// 获取搜索框的父元素
+var searchBoxParent = searchBox.parentElement;
+
+// 隐藏父元素的所有子元素，只显示搜索框
+for (var i = 0; i < searchBoxParent.children.length; i++) {
+    var child = searchBoxParent.children[i];
+    if (child !== searchBox) {
+        child.style.display = "none";
+    }}
+
+
+</script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Content</title>
+    <style>
+        .fixed-content {
+            position: fixed;
+            bottom: 10;
+            right: 10;
+            background-color: #f1f1f1;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fixed-content">
+        <!-- 这里放置你希望固定显示的内容 -->
+        <h2>固定内容区域</h2>
+        <p>这里是固定的内容，将始终显示在屏幕的右下角。</p>
+
+        <!-- 添加链接到百度网站 -->
+<!--        <a href="https://www.baidu.com" target="_blank">点击这里访问百度</a>-->
+<!--        <a href = "javascript:void(0)" href="https://www.baidu.com" onclick = "document.getElementById('1').style.display='block'">请点这里</a>-->
+    </div>
+
+    <!-- 这里放置其他页面内容 -->
+
+</body>
+
+</html>

@@ -11,7 +11,7 @@ import webbrowser
 
 
 base_url = "https://quote.eastmoney.com/{}.html#fullScreenChart"
-base_url = "https://quote.eastmoney.com/concept/{}.html" #极速版
+# base_url = "https://quote.eastmoney.com/concept/{}.html" #极速版
 
 
 def geturl(code):
