@@ -41,7 +41,7 @@ def my_task():
 
 
 #定时任务
-schedule.every(5).seconds.do(my_task)
+schedule.every(2).seconds.do(my_task)
 
 while True:
     # try:

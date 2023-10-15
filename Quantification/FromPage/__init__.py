@@ -10,6 +10,8 @@ from Quantification.FromPage.fenshi_rik import geturl
 from Quantification.FromPage.ths_zixuan import get_ths_zixuan, get_ths_ruozhuanqiang, get_ths_maodian
 from Quantification.FromPage.zhijiehuoqutupian import get_k_jpg
 
+from Quantification.Akshare import Ak_share_client
+
 # url = 'http://www.iwencai.com/stockpick/load-data?rsh=3&typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E4%BB%8A%E6%97%A5%E6%B6%A8%E5%81%9C%E5%92%8C%E6%B6%A8%E5%81%9C%E5%8E%9F%E5%9B%A0%E9%9D%9EST+%E9%A6%96%E6%AC%A1%E6%B6%A8%E5%81%9C%E6%97%B6%E9%97%B4%E6%8E%92%E5%BA%8F&queryarea='
 # response = requests.get(url)
 #
@@ -175,6 +177,9 @@ def get():
     # ret_jihejiangjia = ret_jihejiangjia1.me
 
     '''
+    替换其他方式比如ashare
+    '''
+    '''
     昨日涨停
     '''
     ret_zuorizhangting = pywencai.get(query='昨日涨停  非688开头  非ST 涨停时间从小到大')
@@ -188,20 +193,25 @@ def get():
     '''
     df = get_ths_maodian()
     moaodian_list = df['代码'].values.tolist()
-    ret_maodian = pywencai.get(query='集合竞价 涨速 最高板块 ', find = moaodian_list)
-    ret_maodian.to_csv("./md.csv")
-    filter_col_maodian = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
-                                  '竞价涨幅' + cur_date_str]
+    # ret_maodian = pywencai.get(query='集合竞价 涨速 最高板块 ', find = moaodian_list)
+
+    ret_maodian = Ak_share_client.get_info(moaodian_list)
+    # print("xxx",ret_maodian)
+
+    # ret_maodian.to_csv("./md.csv")
+    # filter_col_maodian = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
+    #                               '竞价涨幅' + cur_date_str]
 
     '''
     弱转强
     '''
     df = get_ths_ruozhuanqiang()
     ruozhuanqiang_list = df['代码'].values.tolist()
-    ret_ruozhuanqiang = pywencai.get(query='集合竞价 涨速 最高板块 ' ,find = ruozhuanqiang_list)
-    ret_ruozhuanqiang.to_csv("./rzq.csv")
-    filter_col_ruozhuanqiang = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
-                                  '竞价涨幅' + cur_date_str]
+    # ret_ruozhuanqiang = pywencai.get(query='集合竞价 涨速 最高板块 ' ,find = ruozhuanqiang_list)
+    # ret_ruozhuanqiang.to_csv("./rzq.csv")
+    # filter_col_ruozhuanqiang = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
+    #                               '竞价涨幅' + cur_date_str]
+    ret_ruozhuanqiang = Ak_share_client.get_info(ruozhuanqiang_list)
 
 
 
@@ -246,7 +256,8 @@ def get():
         # print("--2--")
         workbook = xw.Book()
         # 创建其他工作表并指定名称
-        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5','Sheet6','Sheet7','Sheet8','Sheet9','Sheet10','Sheet11','Sheet12','Sheet13','Sheet14']
+        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5','Sheet6','Sheet7','Sheet8','Sheet9',
+                       'Sheet10','Sheet11','Sheet12','Sheet13','Sheet14','Sheet15','Sheet16',]
         # 使用循环创建并指定多个工作表的名称
         for sheet_name in sheet_names:
             workbook.sheets.add(sheet_name,after=workbook.sheets[-1])
@@ -441,9 +452,12 @@ def get():
     clear_and_setFormat(sheet11)
     sheet11.range('A1').value = ret_jihejiangjia
 
-    # sheet8 = workbook.sheets['Sheet8']
-    # clear_and_setFormat(sheet8)
-    # sheet8.range('A1').value = ret_diedayu5[filter_col_diedayu5]
+    sheet15 = workbook.sheets['Sheet15']
+    clear_and_setFormat(sheet15)
+    sheet15.range('A1').value = ret_maodian
+    sheet16 = workbook.sheets['Sheet16']
+    clear_and_setFormat(sheet16)
+    sheet16.range('A1').value = ret_ruozhuanqiang
 
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
