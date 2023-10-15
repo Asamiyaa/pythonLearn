@@ -28,6 +28,6 @@ def get_ths_zixuan():
 
     # 在 '代码' 列上应用函数，去掉英文字符
     df['代码'] = df['代码'].apply(remove_english_chars)
-    print(df['代码'])
+    # print(df['代码'])
 
     return df

@@ -43,13 +43,17 @@ def get():
     current_date = date.today()
 
     # 判断今天是否是节假日
-    if not cal.is_working_day(current_date):
-        # print("")
-    # else:
-        # 获取前一个工作日的日期
-        current_date = cal.find_following_working_day(current_date - timedelta(days=1))
+    # if not cal.is_working_day(current_date):
+    #     # print("")
+    # # else:
+    #     # 获取前一个工作日的日期
+    #     current_date = cal.find_following_working_day(current_date - timedelta(days=1))
+    # 如果今天不是工作日，找到上一个工作日（上一个周五）
+    while not cal.is_working_day(current_date):
+        current_date -= timedelta(days=1)
 
     cur_date_str =  '[' + str(current_date.strftime("%Y%m%d")) + ']'
+    print(cur_date_str)
 
     res_zt = pywencai.get(query='今日涨停和涨停原因非ST 首次涨停时间排序 行业', sort_key='', sort_order='涨停类型')
     # print(res_zt)
