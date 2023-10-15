@@ -7,7 +7,7 @@
 import datetime
 
 from Quantification.FromPage.fenshi_rik import geturl
-from Quantification.FromPage.ths_zixuan import get_ths_zixuan
+from Quantification.FromPage.ths_zixuan import get_ths_zixuan, get_ths_ruozhuanqiang, get_ths_maodian
 from Quantification.FromPage.zhijiehuoqutupian import get_k_jpg
 
 # url = 'http://www.iwencai.com/stockpick/load-data?rsh=3&typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E4%BB%8A%E6%97%A5%E6%B6%A8%E5%81%9C%E5%92%8C%E6%B6%A8%E5%81%9C%E5%8E%9F%E5%9B%A0%E9%9D%9EST+%E9%A6%96%E6%AC%A1%E6%B6%A8%E5%81%9C%E6%97%B6%E9%97%B4%E6%8E%92%E5%BA%8F&queryarea='
@@ -53,7 +53,7 @@ def get():
         current_date -= timedelta(days=1)
 
     cur_date_str =  '[' + str(current_date.strftime("%Y%m%d")) + ']'
-    print(cur_date_str)
+    # print(cur_date_str)
 
     res_zt = pywencai.get(query='今日涨停和涨停原因非ST 首次涨停时间排序 行业', sort_key='', sort_order='涨停类型')
     # print(res_zt)
@@ -118,6 +118,93 @@ def get():
                     # '所属同花顺行业', '所属概念'
                      ]
 
+    ret_dieting = pywencai.get(query='今日跌停')
+    # ret_zixuangu.to_csv("./FromPage/zixuan.csv")
+    # print("==zixuan---",ret_zixuangu)
+    filter_col_dieting = ['股票代码', '股票简称'  # '个股热度排名'+cur_date_str ,
+                           # '所属同花顺行业', '所属概念'
+                           ]
+
+    ret_diedayu5 = pywencai.get(query='今日跌幅大于5% 非St 非30开头  非688开头 非83开头 非87开头  所属行业')
+    filter_col_diedayu5 = ['股票代码', '股票简称' ,'所属同花顺行业' # '个股热度排名'+cur_date_str ,
+                          # '所属同花顺行业', '所属概念'
+                          ]
+
+    '''
+    有bug ,这里查询条件和问财一样，但效果不一样
+    执行次数少，且无需通知
+    '''
+    # ret_hangyezhangfu = pywencai.get(query='行业涨幅从大到小')
+    # print("---",ret_hangyezhangfu)
+    # filter_col_hangyezhangfu = ['指数简称', '涨跌幅'+cur_date_str#, '所属同花顺行业'  # '个股热度排名'+cur_date_str ,
+    #                        # '所属同花顺行业', '所属概念'
+    #                        ]
+    #
+    # ret_gainianzhangfu = pywencai.get(query='概念涨幅 排序')
+    # print("---", ret_gainianzhangfu)
+    # filter_col_gainianzhangfu = ['指数简称', '涨跌幅'+cur_date_str # '个股热度排名'+cur_date_str ,
+                           # '所属同花顺行业', '所属概念'
+                           # ]
+
+    '''
+    竞价抢筹 - 只执行一次
+    早盘和尾盘使用，确定方向
+    是否应该使用竞价金额替换竞价量？
+    '''
+
+    ret_jihejiangjia1 = pywencai.get(query='集合竞价 高开2%  成交量前30 非30开头 非688开头 非st 竞价量从大到小')
+    filter_col_gainianzhangfu1 = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅', '竞价涨幅' + cur_date_str]
+    # ret_jihejiangjia1.to_csv("./a.csv")
+    # print("---", ret_jihejiangjia1)
+
+    ret_jihejiangjia2 = pywencai.get(query='集合竞价 竞价抢筹 非688开头 非30开头 非新股;非st 涨幅大于1  竞价量从大到小')
+    filter_col_gainianzhangfu2 = ['股票代码', '股票简称', '竞价量'+cur_date_str, '涨跌幅:前复权'+ cur_date_str , '竞价涨幅' + cur_date_str
+                                  # '个股热度排名'+cur_date_str ,
+                                  # '所属同花顺行业', '所属概念'
+                                  ]
+    # ret_jihejiangjia2.to_csv("./a.csv")
+    print("---", ret_jihejiangjia2)
+    df_list = [ret_jihejiangjia1[filter_col_gainianzhangfu1],ret_jihejiangjia2[filter_col_gainianzhangfu2]]
+    ret_jihejiangjia = pd.concat(df_list,   ignore_index=True)
+    # ret_jihejiangjia = pd.merge(ret_jihejiangjia1[filter_col_gainianzhangfu1],ret_jihejiangjia2[filter_col_gainianzhangfu2],on='股票代码',how='')
+    # ret_jihejiangjia.to_csv("./b.csv")
+    # ret_jihejiangjia = ret_jihejiangjia1[filter_col_gainianzhangfu1].set_index('股票代码').combine_first(
+    #                             ret_jihejiangjia2[filter_col_gainianzhangfu2].set_index('股票代码')).reset_index()
+    # print("---", ret_jihejiangjia)
+
+    # ret_jihejiangjia = ret_jihejiangjia1.me
+
+    '''
+    昨日涨停
+    '''
+    ret_zuorizhangting = pywencai.get(query='昨日涨停  非688开头  非ST 涨停时间从小到大')
+    ret_zuorizhangting.to_csv("./zrzt.csv")
+    filter_col_zuorizhangting = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
+                                  '竞价涨幅' + cur_date_str]
+
+
+    '''
+    锚点 - 近期热点
+    '''
+    df = get_ths_maodian()
+    moaodian_list = df['代码'].values.tolist()
+    ret_maodian = pywencai.get(query='集合竞价 涨速 最高板块 ', find = moaodian_list)
+    ret_maodian.to_csv("./md.csv")
+    filter_col_maodian = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
+                                  '竞价涨幅' + cur_date_str]
+
+    '''
+    弱转强
+    '''
+    df = get_ths_ruozhuanqiang()
+    ruozhuanqiang_list = df['代码'].values.tolist()
+    ret_ruozhuanqiang = pywencai.get(query='集合竞价 涨速 最高板块 ' ,find = ruozhuanqiang_list)
+    ret_ruozhuanqiang.to_csv("./rzq.csv")
+    filter_col_ruozhuanqiang = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
+                                  '竞价涨幅' + cur_date_str]
+
+
+
     #写到一个excel不同sheet
     # with pd.ExcelWriter('./data/stronger.xlsx') as writer:
     #     res_zt[filter_col_zt].to_excel(writer, sheet_name='Sheet1', index=False)
@@ -159,7 +246,7 @@ def get():
         # print("--2--")
         workbook = xw.Book()
         # 创建其他工作表并指定名称
-        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5','Sheet6']
+        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5','Sheet6','Sheet7','Sheet8','Sheet9','Sheet10','Sheet11','Sheet12','Sheet13','Sheet14']
         # 使用循环创建并指定多个工作表的名称
         for sheet_name in sheet_names:
             workbook.sheets.add(sheet_name,after=workbook.sheets[-1])
@@ -330,6 +417,33 @@ def get():
     ret_zixuangu = get_fill_url(ret_zixuangu)
     filter_col_zixuangu.append('url')
     sheet6.range('A1').value = ret_zixuangu[filter_col_zixuangu]
+
+
+    sheet7 = workbook.sheets['Sheet7']
+    clear_and_setFormat(sheet7)
+    sheet7.range('A1').value = ret_dieting[filter_col_dieting]
+
+    sheet8 = workbook.sheets['Sheet8']
+    clear_and_setFormat(sheet8)
+    sheet8.range('A1').value = ret_diedayu5[filter_col_diedayu5]
+
+
+
+    # sheet9 = workbook.sheets['Sheet9']
+    # clear_and_setFormat(sheet9)
+    # sheet8.range('A1').value = ret_hangyezhangfu[filter_col_hangyezhangfu]
+    #
+    # sheet10 = workbook.sheets['Sheet10']
+    # clear_and_setFormat(sheet10)
+    # sheet8.range('A1').value = ret_gainianzhangfu[filter_col_gainianzhangfu]
+
+    sheet11 = workbook.sheets['Sheet11']
+    clear_and_setFormat(sheet11)
+    sheet11.range('A1').value = ret_jihejiangjia
+
+    # sheet8 = workbook.sheets['Sheet8']
+    # clear_and_setFormat(sheet8)
+    # sheet8.range('A1').value = ret_diedayu5[filter_col_diedayu5]
 
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
