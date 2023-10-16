@@ -6,6 +6,7 @@
 '''
 import datetime
 
+from Quantification.Akshare.Ak_share_client import get_zixuangu_df, get_ruozhuanqiang_df
 from Quantification.FromPage.fenshi_rik import geturl
 from Quantification.FromPage.ths_zixuan import get_ths_zixuan, get_ths_ruozhuanqiang, get_ths_maodian
 from Quantification.FromPage.zhijiehuoqutupian import get_k_jpg
@@ -113,7 +114,7 @@ def get():
     # print("===自选---", zixuan)
 
     # ddf = pd.DataFrame
-    ret_zixuangu = pywencai.get(query='集合竞价 涨速 最高板块 ', find=zixuan)
+    ret_zixuangu = get_zixuangu_df()#pywencai.get(query='集合竞价 涨速 最高板块 ', find=zixuan)
     # ret_zixuangu.to_csv("./FromPage/zixuan.csv")
     # print("==zixuan---",ret_zixuangu)
     filter_col_zixuangu = ['股票代码','股票简称', '最新涨跌幅', '最新价', '最新涨跌幅'# '个股热度排名'+cur_date_str ,
@@ -205,13 +206,14 @@ def get():
     '''
     弱转强
     '''
-    df = get_ths_ruozhuanqiang()
+    df = get_ruozhuanqiang_df()
     ruozhuanqiang_list = df['代码'].values.tolist()
     # ret_ruozhuanqiang = pywencai.get(query='集合竞价 涨速 最高板块 ' ,find = ruozhuanqiang_list)
     # ret_ruozhuanqiang.to_csv("./rzq.csv")
     # filter_col_ruozhuanqiang = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅',
     #                               '竞价涨幅' + cur_date_str]
-    ret_ruozhuanqiang = Ak_share_client.get_info(ruozhuanqiang_list)
+
+    ret_ruozhuanqiang = get_ths_ruozhuanqiang()#Ak_share_client.get_info(ruozhuanqiang_list)
 
 
 
