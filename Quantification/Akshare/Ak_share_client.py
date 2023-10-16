@@ -11,6 +11,8 @@ base_url = " http://hq.sinajs.cn/list="
 def get_info(codelist):
     print("codelist ==>",codelist)
 
+
+
     # 使用逗号作为分隔符将列表转换为字符串
     # codes = ', '.join(str(item) for item in codelist)
     # codelist
