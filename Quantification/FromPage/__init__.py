@@ -504,7 +504,11 @@ def get_fill_url(df):
     #     df.insert()['url'] = geturl(row['code'])
     #     print(df.to_string())
     # 为DataFrame添加新列url，使用apply函数调用geturl函数
-    df['url'] = df['code'].apply(geturl)
+    try:
+        df['url'] = df['code'].apply(geturl)
+    except:
+        df['url'] = df['代码'].apply(geturl)
+
     # print("===>>",df['url'].to_string())
 
     return df
