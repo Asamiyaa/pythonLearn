@@ -694,6 +694,120 @@ def compare_and_notify(msg_type,current_sheet,filter_ret_x):
 
 
 
+def get_alway_doing():
+    current_date = date.today()
+
+    cur_date_str =  '[' + str(current_date.strftime("%Y%m%d")) + ']'
+
+    res_zt = pywencai.get(query='今日涨停和涨停原因非ST 首次涨停时间排序 行业', sort_key='', sort_order='涨停类型')
+    filter_col_zt = ['code','股票简称','最新价',
+                  '首次涨停时间'+cur_date_str,'涨停原因类别'+cur_date_str,'涨停类型'+cur_date_str,
+                  '连续涨停天数'+cur_date_str,'几天几板' + cur_date_str,
+                  '涨停封单量'+cur_date_str,'涨停封单额'+cur_date_str,'涨停开板次数'+cur_date_str
+                  ]
+
+
+    res_dy5 = pywencai.get(query='今日涨幅大于5 非30开头 非 688开头 非ST 非涨停 展示行业 ', sort_key='', sort_order='')
+    filter_col_dy5 = ['code','股票简称','最新价',
+                  '成交量' + cur_date_str, '所属同花顺行业',
+                  '涨停价'+ cur_date_str
+                  ]
+
+    res_dy8 = pywencai.get(query='今日涨幅大于8 非30开头 非 688开头 非ST 非涨停 展示行业 ', sort_key='', sort_order='')
+    filter_col_dy8 = ['code', '股票简称', '最新价',
+                      '成交量' + cur_date_str, '所属同花顺行业',
+                      '涨停价' + cur_date_str
+                      ]
+
+    res_zb = pywencai.get(query='今日炸板不含ST 所属行业', sort_key='', sort_order='')
+    filter_col_zb = ['code','股票简称','最新价',
+                  '涨停时间明细'+cur_date_str,'涨停开板次数'+cur_date_str,
+                  '所属同花顺行业',
+                  '涨停价'+ cur_date_str
+                  ]
+
+    ret_T = get_T()
+
+    try:
+        workbook = xw.Book('./data/stronger.xlsx')
+
+        # 获取已经运行的Excel应用程序实例，如果没有运行的实例，则会启动一个新的Excel应用程序
+        # app = xw.apps.active
+        # 打开现有的Excel工作簿，如果文件不存在，则会创建一个新的工作簿
+        # workbook = app.books.open('./data/stronger.xlsx')  #修改为你的Excel文件路径
+
+        # print("--1--")
+    except FileNotFoundError:
+        # print("--2--")
+        workbook = xw.Book()
+        # 创建其他工作表并指定名称
+        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5','Sheet6','Sheet7','Sheet8','Sheet9','Sheet10','Sheet11','Sheet12','Sheet13','Sheet14']
+        # 使用循环创建并指定多个工作表的名称
+        for sheet_name in sheet_names:
+            workbook.sheets.add(sheet_name,after=workbook.sheets[-1])
+        workbook.save('./data/stronger.xlsx')
+
+    sheet2=workbook.sheets['Sheet2']          #.sheets[0]
+    is_refresh = compare_and_notify("zt",sheet2, res_zt[filter_col_zt])
+
+    if is_refresh:
+        clear_and_setFormat(sheet2,False)
+        res_zt = get_fill_url(res_zt)
+        filter_col_zt.append('url')
+        sheet2.range('A1').value = res_zt[filter_col_zt]  # 将DataFrame写入A1单元格，xlwings会自动处理整个DataFrame
+        # get_k_jpg(sheet2)
+
+    # dayu 5 的不提示，直接
+    sheet3=workbook.sheets['Sheet3']
+    # is_refresh = compare_and_notify("dy5",sheet3, res_dy5[filter_col_dy5])
+    is_refresh = True
+    if is_refresh:
+        clear_and_setFormat(sheet3,False)
+        res_dy5 = get_fill_url(res_dy5)
+        filter_col_dy5.append('url')
+        sheet3.range('A1').value = res_dy5[filter_col_dy5]
+
+        # get_k_jpg(sheet3)
+
+
+
+    sheet15=workbook.sheets['Sheet15']
+    is_refresh = compare_and_notify("dy8",sheet15, res_dy8[filter_col_dy8])
+    # is_refresh = True
+    if is_refresh:
+        clear_and_setFormat(sheet15,False)
+        res_dy8 = get_fill_url(res_dy8)
+        filter_col_dy8.append('url')
+        sheet15.range('A1').value = res_dy8[filter_col_dy8]
+
+        # get_k_jpg(sheet15)
+
+    sheet4 = workbook.sheets['Sheet4']
+    is_refresh = compare_and_notify("zb", sheet4, res_zb[filter_col_zb])
+    if is_refresh:
+        clear_and_setFormat(sheet4, False)
+        res_zb = get_fill_url(res_zb)
+        filter_col_zb.append('url')
+        sheet4.range('A1').value = res_zb[filter_col_zb]
+
+        # get_k_jpg(sheet4)
+
+    sheet16 = workbook.sheets['Sheet16']
+    is_refresh = filter_zhangsu_yidong("T", ret_T,sheet16)
+    #每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
+    # is_refresh = True
+    if is_refresh:
+        clear_and_setFormat(sheet16, False)
+        ret_T = get_fill_url(ret_T)
+        filter_col_zb.append('url')
+        sheet16.range('A1').value = ret_T
+
+        # get_k_jpg(sheet16)
+
+    # 保存Excel文件
+    print('-- refresh --',datetime.now(),"-------")
+
+
 
 
 
