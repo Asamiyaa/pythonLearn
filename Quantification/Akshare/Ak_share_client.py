@@ -193,3 +193,20 @@ def get_ruozhuanqiang_df():
 
     print(df)
     return df
+
+
+list_T = [
+    '002855',
+    '000766',
+    '000727'
+]
+
+def get_T():
+    aa = ak.stock_zh_a_spot_em()
+    need_col = ['代码', '名称', '涨跌幅', '量比', '涨速']
+    df = aa[need_col]
+    df = df[(df['代码'].isin(list_T))]
+    # print(df)
+    df.rename(columns={'代码': 'code','名称':'股票简称'}, inplace=True)
+
+    return df
