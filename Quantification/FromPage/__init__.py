@@ -457,9 +457,21 @@ def get():
     sheet15 = workbook.sheets['Sheet15']
     clear_and_setFormat(sheet15)
     sheet15.range('A1').value = ret_maodian
+    # sheet16 = workbook.sheets['Sheet16']
+    # clear_and_setFormat(sheet16)
+    # sheet16.range('A1').value = ret_ruozhuanqiang
+
     sheet16 = workbook.sheets['Sheet16']
-    clear_and_setFormat(sheet16)
-    sheet16.range('A1').value = ret_ruozhuanqiang
+    is_refresh = filter_zhangsu_yidong("T", ret_T,sheet16)
+    #每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
+    # is_refresh = True
+    if is_refresh:
+        clear_and_setFormat(sheet16, False)
+        ret_T = get_fill_url(ret_T)
+        filter_col_zb.append('url')
+        sheet16.range('A1').value = ret_T
+
+        # get_k_jpg(sheet16)
 
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
@@ -513,6 +525,56 @@ def get_fill_url(df):
 
     return df
 
+
+
+
+'''
+对涨速、异动策略，
+    1.去除噪音
+    2.准确率
+'''
+def filter_zhangsu_yidong(msg_type,ret,sheet):
+    #这里策略
+    # if (ret['涨跌幅'] >= 1.0) & ((ret['涨速'] > 1.0) | (ret['5分钟涨跌'] > 1.0) | (ret['量比'] > 1)):
+    # 遍历DataFrame,再每行判断，区分开下面这种
+    # ZhangTing_df = df[((df["changepercent"] > 9.5) & (df['code'] < '609999') & (df["changepercent"] < 11) & (
+    #             (df['code'] > '309999') | (df['code'] < '111111'))) | (
+    #                               # df["changepercent"] > 19)]  # & (df['name']) 不知道如何强转
+
+    # ret = ret[(ret['涨跌幅'] >= 1.0) & ((ret['涨速'] > 1.0) | (ret['5分钟涨跌'] > 1.0) | (ret['量比'] > 1))]
+
+    '''
+    自选
+    '''
+    ret = ret[(ret['涨跌幅'] >= 1.0)]
+
+    compare_and_notify(msg_type,sheet,ret)
+
+    #如果sheet中已存在、说明已经关注到了，不在通知
+
+
+    '''
+    异动 - 斜率计算  ret值和sheet值对比
+    '''
+
+
+
+    #
+    #
+    #
+    # if not ret.empty:
+    #     if msg_type == 'T':
+    #         msg = "============T============\n" + ret.to_string()
+    #         qywx.send_text(msg)
+    #         return True
+    #
+    #     if msg_type == 'yd':
+    #         msg = "============yd============\n" + ret.to_string()
+    #         qywx.send_text(msg)
+    #         return True
+
+
+    return True
 
 
 
