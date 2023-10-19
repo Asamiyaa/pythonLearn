@@ -830,6 +830,16 @@ def get_alway_doing():
 
         # get_k_jpg(sheet16)
 
+    sheet9 = workbook.sheets['Sheet9']
+    is_refresh = filter_zhangsu_yidong("zx", ret_zx, sheet9)
+    # 每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
+    # is_refresh = True
+    if is_refresh:
+        clear_and_setFormat(sheet9, False)
+        ret_zx = get_fill_url(ret_zx)
+        filter_col_zb.append('url')
+        sheet9.range('A1').value = ret_zx
+
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
 
