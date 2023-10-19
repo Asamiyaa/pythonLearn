@@ -244,6 +244,14 @@ list_T = [
 
 ]
 
+no_notify_list=[
+    '001270',
+    '603595',
+    '002623',
+    '002145'
+
+]
+
 def get_T():
     aa = ak.stock_zh_a_spot_em()
     need_col = ['代码', '名称', '涨跌幅', '量比', '涨速']
@@ -253,3 +261,28 @@ def get_T():
     df.rename(columns={'代码': 'code','名称':'股票简称'}, inplace=True)
 
     return df
+
+
+
+def get_zixuanguAsCode_df():
+    aa = ak.stock_zh_a_spot_em()
+    # aa.to_csv("./aaa.csv")
+    need_col = ['代码', '名称', '涨跌幅', '量比', '5分钟涨跌', '涨速']
+    df = aa[need_col]
+    # df = df[(df['涨跌幅'] > 9) & (df['涨跌幅'] < 11)]
+    # print(df)
+
+    # 重命名
+    # df.rename(columns={'代码': 'code', '名称': 'name', '涨跌幅': 'changepercent'}, inplace=True)
+    df = df[(df['代码'].isin(list_zixuangu))]
+    df.rename(columns={'代码': 'code', '名称': '股票简称'}, inplace=True)
+    # print(df)
+    return df
+
+
+
+def get_no_notify_list():
+    return no_notify_list
+
+
+
