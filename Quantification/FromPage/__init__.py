@@ -528,6 +528,7 @@ def get_fill_url(df):
 
 
 
+
 '''
 对涨速、异动策略，
     1.去除噪音
@@ -544,11 +545,38 @@ def filter_zhangsu_yidong(msg_type,ret,sheet):
     # ret = ret[(ret['涨跌幅'] >= 1.0) & ((ret['涨速'] > 1.0) | (ret['5分钟涨跌'] > 1.0) | (ret['量比'] > 1))]
 
     '''
-    自选
+    自选 + 涨幅>= 1.0  --todo : 现在未起作用 -- 应该可以
+    已持有的话大于1就去通知
     '''
-    ret = ret[(ret['涨跌幅'] >= 1.0)]
+    if 'T' == msg_type:
+        ret = ret[(ret['涨跌幅'] >= 1.0) | (ret['量比'] >= 1.5) | (ret['涨速'] >= 0.5) ]
 
-    compare_and_notify(msg_type,sheet,ret)
+    '''
+    自选的话大于3去通知
+    '''
+    if 'zx' == msg_type:
+        ret = ret[(ret['涨跌幅'] >= 3.0) | (ret['量比'] >= 1.5) | (ret['涨速'] >= 0.5)]
+    # print("ret is ",ret)
+
+    '''
+    全市场异动(异动精灵) + (自选+人气榜+其他自己提前过滤过的)
+    
+    获取实时股票数据：使用股票数据接口获取实时的股票数据，可以选择使用第三方的股票数据API或者爬取股票信息网站的数据。
+    定义筛选策略：定义异动精灵的策略，例如涨幅超过一定百分比、成交量大幅增加、股价突破前高等等。根据策略筛选符合条件的股票。
+    提醒机制：根据筛选出的股票，可以选择通过邮件、短信、微信推送等方式进行提醒，通知用户有异动的股票出现。
+    
+    '''
+
+    '''
+    这里不应该这么写，因为不用对比，他的票没有新增概念，而是监控票涨幅和涨速问题，所以不用compare 
+    但是又考虑到每次都要报警所以加入关闭功能
+    '''
+    no_notify_list = get_no_notify_list();
+    ret = ret[(~ret['code'].isin(no_notify_list))]
+    # print("not is in ",ret)
+
+
+    # compare_and_notify(msg_type,sheet,ret)
 
     #如果sheet中已存在、说明已经关注到了，不在通知
 
@@ -559,22 +587,20 @@ def filter_zhangsu_yidong(msg_type,ret,sheet):
 
 
 
-    #
-    #
-    #
-    # if not ret.empty:
-    #     if msg_type == 'T':
-    #         msg = "============T============\n" + ret.to_string()
-    #         qywx.send_text(msg)
-    #         return True
-    #
-    #     if msg_type == 'yd':
-    #         msg = "============yd============\n" + ret.to_string()
-    #         qywx.send_text(msg)
-    #         return True
+    if not ret.empty:
+        if msg_type == 'T':
+            msg = "============T============\n" + ret.to_string()
+            qywx.send_text(msg)
+            return True
+
+        if msg_type == 'zx':
+            msg = "============zx============\n" + ret.to_string()
+            qywx.send_text(msg)
+            return True
 
 
     return True
+
 
 
 
