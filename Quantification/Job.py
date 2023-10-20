@@ -35,13 +35,23 @@ import schedule
 import time
 from FromPage import *
 def my_task():
-  # Main.get_more5_zhangting()
-  get()
-  # print("====get_more5_zhangting====")
+    try:
+        get20231016()
+    except Exception as e:
+        print(e)
+        qywx.send_text("---服务炸了------------>>>" , e)
+
+def my_taks():
+    try:
+        get_alway_doing()
+    except Exception as e:
+        print(e)
+        qywx.send_text("---服务炸了---",e)
 
 
 #定时任务
 schedule.every(2).seconds.do(my_task)
+schedule.every(3).seconds.do(my_taks)
 
 while True:
     # try:
