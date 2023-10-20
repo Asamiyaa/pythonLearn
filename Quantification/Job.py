@@ -53,7 +53,7 @@ def my_taks():
 
 
 #定时任务
-schedule.every(10).seconds.do(my_task)
+schedule.every(1).seconds.do(my_task)
 schedule.every(1).seconds.do(my_taks)
 
 while True:
