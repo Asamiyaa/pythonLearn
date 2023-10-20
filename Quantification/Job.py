@@ -1,4 +1,5 @@
 import datetime
+import traceback
 #
 # import daily_zhangTing_analysis
 # from config import Configure_storer
@@ -38,8 +39,10 @@ def my_task():
     try:
         get20231016()
     except Exception as e:
-        print(e)
-        qywx.send_text("---服务炸了------------>>>" , e)
+         # print(e)
+        traceback.print_exc()
+        msg = "---服务炸了---" + str(e)
+        qywx.send_text(msg)
 
 def my_taks():
     try:
