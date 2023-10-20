@@ -736,11 +736,11 @@ def get_alway_doing():
                   ]
 
 
-    res_dy5 = pywencai.get(query='今日涨幅大于5 非30开头 非 688开头 非ST 非涨停 展示行业 ', sort_key='', sort_order='')
-    filter_col_dy5 = ['code','股票简称','最新价',
-                  '成交量' + cur_date_str, '所属同花顺行业',
-                  '涨停价'+ cur_date_str
-                  ]
+    # res_dy5 = pywencai.get(query='今日涨幅大于5 非30开头 非 688开头 非ST 非涨停 展示行业 ', sort_key='', sort_order='')
+    # filter_col_dy5 = ['code','股票简称','最新价',
+    #               '成交量' + cur_date_str, '所属同花顺行业',
+    #               '涨停价'+ cur_date_str
+    #               ]
 
     res_dy8 = pywencai.get(query='今日涨幅大于8 非30开头 非 688开头 非ST 非涨停 展示行业 ', sort_key='', sort_order='')
     filter_col_dy8 = ['code', '股票简称', '最新价',
@@ -786,17 +786,17 @@ def get_alway_doing():
         sheet2.range('A1').value = res_zt[filter_col_zt]  # 将DataFrame写入A1单元格，xlwings会自动处理整个DataFrame
         # get_k_jpg(sheet2)
 
-    # dayu 5 的不提示，直接
-    sheet3=workbook.sheets['Sheet3']
-    # is_refresh = compare_and_notify("dy5",sheet3, res_dy5[filter_col_dy5])
-    is_refresh = True
-    if is_refresh:
-        clear_and_setFormat(sheet3,False)
-        res_dy5 = get_fill_url(res_dy5)
-        filter_col_dy5.append('url')
-        sheet3.range('A1').value = res_dy5[filter_col_dy5]
+    # # dayu 5 的不提示，直接
+    # sheet3=workbook.sheets['Sheet3']
+    # # is_refresh = compare_and_notify("dy5",sheet3, res_dy5[filter_col_dy5])
+    # is_refresh = True
+    # if is_refresh:
+    #     clear_and_setFormat(sheet3,False)
+    #     res_dy5 = get_fill_url(res_dy5)
+    #     filter_col_dy5.append('url')
+    #     sheet3.range('A1').value = res_dy5[filter_col_dy5]
 
-        # get_k_jpg(sheet3)
+    #     # get_k_jpg(sheet3)
 
 
 
@@ -836,15 +836,15 @@ def get_alway_doing():
 
         # get_k_jpg(sheet16)
 
-    sheet9 = workbook.sheets['Sheet9']
-    is_refresh = filter_zhangsu_yidong("zx", ret_zx, sheet9)
-    # 每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
-    # is_refresh = True
-    if is_refresh:
-        clear_and_setFormat(sheet9, False)
-        ret_zx = get_fill_url(ret_zx)
-        filter_col_zb.append('url')
-        sheet9.range('A1').value = ret_zx
+    # sheet9 = workbook.sheets['Sheet9']
+    # is_refresh = filter_zhangsu_yidong("zx", ret_zx, sheet9)
+    # # 每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
+    # # is_refresh = True
+    # if is_refresh:
+    #     clear_and_setFormat(sheet9, False)
+    #     ret_zx = get_fill_url(ret_zx)
+    #     filter_col_zb.append('url')
+    #     sheet9.range('A1').value = ret_zx
 
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
