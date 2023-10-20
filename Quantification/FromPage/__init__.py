@@ -461,17 +461,17 @@ def get():
     # clear_and_setFormat(sheet16)
     # sheet16.range('A1').value = ret_ruozhuanqiang
 
-    sheet16 = workbook.sheets['Sheet16']
-    is_refresh = filter_zhangsu_yidong("T", ret_T,sheet16)
-    #每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
-    # is_refresh = True
-    if is_refresh:
-        clear_and_setFormat(sheet16, False)
-        ret_T = get_fill_url(ret_T)
-        filter_col_zb.append('url')
-        sheet16.range('A1').value = ret_T
+    # sheet16 = workbook.sheets['Sheet16']
+    # is_refresh = filter_zhangsu_yidong("T", ret_T,sheet16)
+    # #每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
+    # # is_refresh = True
+    # if is_refresh:
+    #     clear_and_setFormat(sheet16, False)
+    #     ret_T = get_fill_url(ret_T)
+    #     filter_col_zb.append('url')
+    #     sheet16.range('A1').value = ret_T
 
-        # get_k_jpg(sheet16)
+    #     # get_k_jpg(sheet16)
 
     # 保存Excel文件
     print('-- refresh --',datetime.now(),"-------")
@@ -821,10 +821,13 @@ def get_alway_doing():
 
         # get_k_jpg(sheet4)
 
+   
     sheet16 = workbook.sheets['Sheet16']
     is_refresh = filter_zhangsu_yidong("T", ret_T,sheet16)
     #每次都刷新，但是上面的通知是满足条件后再通知,通知了再去看吧。一般都是烂股，清理中
     # is_refresh = True
+    ret_T = ret_T[(ret_T['涨跌幅'] >= 1.0)]
+    # print("0000",ret_T)
     if is_refresh:
         clear_and_setFormat(sheet16, False)
         ret_T = get_fill_url(ret_T)
