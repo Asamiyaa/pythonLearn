@@ -155,10 +155,10 @@ def get():
     是否应该使用竞价金额替换竞价量？
     '''
 
-    ret_jihejiangjia1 = pywencai.get(query='集合竞价 高开2%  成交量前30 非30开头 非688开头 非st 竞价量从大到小')
-    filter_col_gainianzhangfu1 = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅', '竞价涨幅' + cur_date_str]
-    # ret_jihejiangjia1.to_csv("./a.csv")
-    # print("---", ret_jihejiangjia1)
+    # ret_jihejiangjia1 = pywencai.get(query='集合竞价 高开2%  成交量前30 非30开头 非688开头 非st 竞价量从大到小')
+    # filter_col_gainianzhangfu1 = ['股票代码', '股票简称', '竞价量' + cur_date_str, '最新涨跌幅', '竞价涨幅' + cur_date_str]
+    # # ret_jihejiangjia1.to_csv("./a.csv")
+    # # print("---", ret_jihejiangjia1)
 
     ret_jihejiangjia2 = pywencai.get(query='集合竞价 竞价抢筹 非688开头 非30开头 非新股;非st 涨幅大于1  竞价量从大到小')
     filter_col_gainianzhangfu2 = ['股票代码', '股票简称', '竞价量'+cur_date_str, '涨跌幅:前复权'+ cur_date_str , '竞价涨幅' + cur_date_str
@@ -166,9 +166,9 @@ def get():
                                   # '所属同花顺行业', '所属概念'
                                   ]
     # ret_jihejiangjia2.to_csv("./a.csv")
-    print("---", ret_jihejiangjia2)
-    df_list = [ret_jihejiangjia1[filter_col_gainianzhangfu1],ret_jihejiangjia2[filter_col_gainianzhangfu2]]
-    ret_jihejiangjia = pd.concat(df_list,   ignore_index=True)
+    # print("---", ret_jihejiangjia2)
+    df_list = ret_jihejiangjia2[filter_col_gainianzhangfu2]    #[ret_jihejiangjia1[filter_col_gainianzhangfu1],ret_jihejiangjia2[filter_col_gainianzhangfu2]]
+    ret_jihejiangjia = df_list    #pd.concat(df_list,   ignore_index=True)
     # ret_jihejiangjia = pd.merge(ret_jihejiangjia1[filter_col_gainianzhangfu1],ret_jihejiangjia2[filter_col_gainianzhangfu2],on='股票代码',how='')
     # ret_jihejiangjia.to_csv("./b.csv")
     # ret_jihejiangjia = ret_jihejiangjia1[filter_col_gainianzhangfu1].set_index('股票代码').combine_first(
