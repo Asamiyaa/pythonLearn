@@ -585,16 +585,19 @@ def filter_zhangsu_yidong(msg_type,ret,sheet):
     异动 - 斜率计算  ret值和sheet值对比
     '''
 
+    # compare_and_notify(msg_type,sheet,ret)
+    ret = ret[['code','股票简称']].reset_index(drop=True)
+    msg = ret.to_string(header=False, index=False)
 
 
     if not ret.empty:
         if msg_type == 'T':
-            msg = "============T============\n" + ret.to_string()
+            msg = "============T============\n" + msg
             qywx.send_text(msg)
             return True
 
         if msg_type == 'zx':
-            msg = "============zx============\n" + ret.to_string()
+            msg = "============zx============\n" + msg
             qywx.send_text(msg)
             return True
 
