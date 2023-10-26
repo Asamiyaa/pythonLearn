@@ -36,13 +36,24 @@ import time
 from FromPage import *
 def my_task():
   # Main.get_more5_zhangting()
-  get()
+   try:
+        get()
+    except Exception as e:
+        # print(e)
+        traceback.print_exc()
+        msg = "---服务炸了---" + str(e)
+        qywx.send_text(msg)
+  
   # print("====get_more5_zhangting====")
+
+
+def my_wufenzhong():
+    getJiange()
 
 
 #定时任务
 schedule.every(5).seconds.do(my_task)
-
+schedule.every(5).minutes.do(my_wufenzhong)
 while True:
     # try:
     schedule.run_pending()
