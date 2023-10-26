@@ -51,10 +51,13 @@ def my_taks():
         print(e)
         qywx.send_text("---服务炸了---",e)
 
-
+def my_wufenzhong():
+    getJiange()
+    
 #定时任务
 schedule.every(1).seconds.do(my_task)
 schedule.every(1).seconds.do(my_taks)
+schedule.every(5).minutes.do(my_wufenzhong)
 
 while True:
     # try:
