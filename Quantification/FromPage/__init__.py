@@ -341,6 +341,42 @@ def compare_and_notify(msg_type,current_sheet,filter_ret_x):
         qywx.send_text(msg)
 
 
+def getJiange():
+    ret_wufenzhong = pywencai.get(query='"五分钟涨幅最快 前30 非30开头 非688开头 非83开头 非87开头 非ST"', sort_key='',
+                                  sort_order='')
+    # ret_wufenzhong.to_csv("./wufenzhong.csv")
+    filter_col_wufenzhong = ['code', '股票简称', '最新涨跌幅']
 
+    try:
+        workbook = xw.Book('./data/stronger.xlsx')
+
+        # 获取已经运行的Excel应用程序实例，如果没有运行的实例，则会启动一个新的Excel应用程序
+        # app = xw.apps.active
+        # 打开现有的Excel工作簿，如果文件不存在，则会创建一个新的工作簿
+        # workbook = app.books.open('./data/stronger.xlsx')  #修改为你的Excel文件路径
+
+        # print("--1--")
+    except FileNotFoundError:
+        # print("--2--")
+        workbook = xw.Book()
+        # 创建其他工作表并指定名称
+        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4','Sheet5','Sheet6','Sheet7','Sheet8','Sheet9','Sheet10','Sheet11','Sheet12','Sheet13','Sheet14']
+        # 使用循环创建并指定多个工作表的名称
+        for sheet_name in sheet_names:
+            workbook.sheets.add(sheet_name,after=workbook.sheets[-1])
+        workbook.save('./data/stronger.xlsx')
+
+    sheet6 = workbook.sheets['Sheet6']
+    ret_wufenzhong = ret_wufenzhong[(ret_wufenzhong['最新涨跌幅'] >= str(1.0))]
+    is_refresh = filter_zhangsu_yidong("wufenzhong", ret_wufenzhong, sheet6)
+
+    # print("===>",ret_wufenzhong)
+    if True:
+        clear_and_setFormat(sheet6, False)
+        ret_wufenzhong = get_fill_url(ret_wufenzhong)
+        filter_col_wufenzhong.append('url')
+        sheet6.range('A1').value = ret_wufenzhong[filter_col_wufenzhong]
+
+    print('-- refresh wufenzhong --',datetime.now(),"-------")
 
 
