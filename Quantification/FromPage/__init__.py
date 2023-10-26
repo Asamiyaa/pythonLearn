@@ -535,6 +535,8 @@ def get_fill_url(df):
     2.准确率
 '''
 def filter_zhangsu_yidong(msg_type,ret,sheet):
+    # print('msgtype111',msg_type)
+    # print('--msg111--ret',ret)
     #这里策略
     # if (ret['涨跌幅'] >= 1.0) & ((ret['涨速'] > 1.0) | (ret['5分钟涨跌'] > 1.0) | (ret['量比'] > 1)):
     # 遍历DataFrame,再每行判断，区分开下面这种
@@ -548,15 +550,50 @@ def filter_zhangsu_yidong(msg_type,ret,sheet):
     自选 + 涨幅>= 1.0  --todo : 现在未起作用 -- 应该可以
     已持有的话大于1就去通知
     '''
+    ret1 = None
+    ret2 = None
+    ret3 = None
+    ret4 = None
     if 'T' == msg_type:
-        ret = ret[(ret['涨跌幅'] >= 1.0) | (ret['量比'] >= 1.5) | (ret['涨速'] >= 0.5) ]
+    # ret = ret[(ret['涨跌幅'] >= 1.0)  | (ret['涨速'] >= 0.5) ]
+    # if '2.0T' == msg_type:
+    #     ret = ret[(ret['涨跌幅'] >= 2.0)  | (ret['涨速'] >= 0.5) ]
+    # if '3.0T' == msg_type:
+    #     ret = ret[(ret['涨跌幅'] >= 3.0)  | (ret['涨速'] >= 0.5) ]
+
+        ''''
+        分组逻辑
+        '''
+        ret1 = ret[((ret['涨跌幅'] >= 1.0) & (ret['涨跌幅'] < 2.0))]
+        ret2 = ret[((ret['涨跌幅'] >= 2.0) & (ret['涨跌幅'] < 3.0))]
+        ret3 = ret[((ret['涨跌幅'] >= 3.0) & (ret['涨跌幅'] < 4.0))]
+        ret4 = ret[((ret['涨跌幅'] >= 4.0) & (ret['涨跌幅'] < 10.0))]
+
+        # print("ret1-->",ret1)
+        # print("ret2-->", ret2)
+        # print("ret3-->", ret3)
+        # print("ret4-->", ret4)
 
     '''
     自选的话大于3去通知
     '''
     if 'zx' == msg_type:
         ret = ret[(ret['涨跌幅'] >= 3.0) | (ret['量比'] >= 1.5) | (ret['涨速'] >= 0.5)]
-    # print("ret is ",ret)
+
+
+    # print("===1===ret is ",ret)
+
+    if 'jhjj' == msg_type:
+        current_date = date.today()
+        cur_date_str = '[' + str(current_date.strftime("%Y%m%d")) + ']'
+        # print(cur_date_str)
+        f='涨跌幅:前复权'+ cur_date_str
+        # ret = ret[(float(ret[f]) >= 3.0)]
+        tolerance = 0.000001  # 容忍误差
+        ret = ret[(ret[f].astype(float) >= 3.0 - tolerance)]
+        # ret = ret[(ret[f] >= '3.0')]
+        # print("==>>>",ret)
+        ret.rename(columns={'股票代码': 'code'}, inplace=True)
 
     '''
     全市场异动(异动精灵) + (自选+人气榜+其他自己提前过滤过的)
@@ -571,38 +608,96 @@ def filter_zhangsu_yidong(msg_type,ret,sheet):
     这里不应该这么写，因为不用对比，他的票没有新增概念，而是监控票涨幅和涨速问题，所以不用compare 
     但是又考虑到每次都要报警所以加入关闭功能
     '''
-    no_notify_list = get_no_notify_list();
-    ret = ret[(~ret['code'].isin(no_notify_list))]
-    # print("not is in ",ret)
+    if 'T' == msg_type:
+        no_notify_list = get_no_notify_list();
+        no_notify_list_2T = get_no_notify_list_2T();
+        no_notify_list_3T = get_no_notify_list_3T();
+        no_notify_list_4T = get_no_notify_list_4T();
+        '''
+        这里过滤的是1.0T 情况
+        '''
+        # if 'T' == msg_type:
+        #     ret = ret[(~ret['code'].isin(no_notify_list))]
+        # if '2.0T' == msg_type:
+        #     ret = ret[(~ret['code'].isin(no_notify_list_2T))]
+        # if '3.0T' == msg_type:
+        #     ret = ret[(~ret['code'].isin(no_notify_list_3T))]
+
+        ret1 = ret1[(~ret1['code'].isin(no_notify_list))]
+        ret2 = ret2[(~ret2['code'].isin(no_notify_list_2T))]
+        # print("ret222-->",ret2)
+        ret3 = ret3[(~ret3['code'].isin(no_notify_list_3T))]
+        # print("ret333-->", ret3)
+        ret4 = ret4[(~ret4['code'].isin(no_notify_list_4T))]
+        # print("not is in ",ret)
 
 
-    # compare_and_notify(msg_type,sheet,ret)
-
+        # compare_and_notify(msg_type,sheet,ret)
+        ret1 = ret1[['code','股票简称']].reset_index(drop=True)
+        msg1 = ret1.to_string(header=False, index=False)
+        # print("retggggg-->", ret2)
+        ret2 = ret2[['code', '股票简称']].reset_index(drop=True)
+        # print("retggggg-->", ret2)
+        msg2 = ret2.to_string(header=False, index=False)
+        ret3 = ret3[['code', '股票简称']].reset_index(drop=True)
+        msg3 = ret3.to_string(header=False, index=False)
+        ret4 = ret4[['code', '股票简称']].reset_index(drop=True)
+        msg4 = ret4.to_string(header=False, index=False)
+        # print("--ret--",ret)
     #如果sheet中已存在、说明已经关注到了，不在通知
+        '''
+        异动 - 斜率计算  ret值和sheet值对比
+        '''
+        if not ret1.empty:
+            msg1 = "============1T============\n" + msg1
+            qywx.send_text(msg1)
+            # return True
+        if not ret2.empty:
+            msg2 = "============2T============\n" + msg2
+            qywx.send_text(msg2)
+            # return True
+        if not ret3.empty:
+            msg3 = "============3T============\n" + msg3
+            qywx.send_text(msg3)
+            # return True
+        if not ret4.empty:
+            msg4 = "============4T============\n" + msg4
+            qywx.send_text(msg4)
+            # return True
 
-
-    '''
-    异动 - 斜率计算  ret值和sheet值对比
-    '''
-
-    # compare_and_notify(msg_type,sheet,ret)
-    ret = ret[['code','股票简称']].reset_index(drop=True)
-    msg = ret.to_string(header=False, index=False)
-
-
+    # print("========<<<<<")
     if not ret.empty:
-        if msg_type == 'T':
-            msg = "============T============\n" + msg
-            qywx.send_text(msg)
-            return True
+
 
         if msg_type == 'zx':
+            ret = ret[['code', '股票简称']].reset_index(drop=True)
+            msg = ret.to_string(header=False, index=False)
+
             msg = "============zx============\n" + msg
             qywx.send_text(msg)
-            return True
+            # return True
 
+        if msg_type == 'jhjj':
+            current_date = date.today()
+            cur_date_str = '[' + str(current_date.strftime("%Y%m%d")) + ']'
+            # print(cur_date_str)
+            f = '涨跌幅:前复权' + cur_date_str
+            ret = ret[['code', '股票简称',f]].reset_index(drop=True)
+            msg = ret.to_string(header=False, index=False)
+
+            msg = "============jhjj============\n" + msg
+            qywx.send_text(msg)
+            # return True
+
+        if msg_type == 'wufenzhong':
+            ret = ret[['code', '股票简称','最新涨跌幅']].reset_index(drop=True)
+            msg = ret.to_string(header=False, index=False)
+
+            msg = "============wufenzhong============\n" + msg
+            qywx.send_text(msg)
 
     return True
+
 
 
 
@@ -755,6 +850,13 @@ def get_alway_doing():
                   '涨停价'+ cur_date_str
                   ]
 
+    ret_jihejiangjia2 = pywencai.get(query='集合竞价 竞价抢筹 非688开头 非30开头 非新股;非st 涨幅大于1  竞价量从大到小')
+    filter_col_gainianzhangfu2 = ['股票代码', '股票简称', '竞价量' + cur_date_str, '涨跌幅:前复权' + cur_date_str,
+                                  '竞价涨幅' + cur_date_str
+                                  # '个股热度排名'+cur_date_str ,
+                                  # '所属同花顺行业', '所属概念'
+                                  ]
+
     ret_T = get_T()
 
     try:
@@ -821,6 +923,10 @@ def get_alway_doing():
 
         # get_k_jpg(sheet4)
 
+    sheet11 = workbook.sheets['Sheet11']
+    is_refresh = filter_zhangsu_yidong("jhjj", ret_jihejiangjia2[filter_col_gainianzhangfu2],sheet11)
+    clear_and_setFormat(sheet11, True)
+    sheet11.range('A1').value = ret_jihejiangjia2[filter_col_gainianzhangfu2]
    
     sheet16 = workbook.sheets['Sheet16']
     is_refresh = filter_zhangsu_yidong("T", ret_T,sheet16)
