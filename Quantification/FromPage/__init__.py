@@ -996,3 +996,37 @@ def getJiange():
     print('-- refresh wufenzhong --',datetime.now(),"-------")
 
 
+
+
+import qstock as qs
+def duanxianjingling():
+
+    duaxianjingling_df = qs.realtime_change('火箭发射')
+    duaxianjingling_df.rename(columns={'代码': 'code','名称': '股票简称'}, inplace=True)
+
+    duaxianjingling_df = duaxianjingling_df[((duaxianjingling_df['code'] < '609999') & (duaxianjingling_df['code'] > '309999')) | (duaxianjingling_df['code'] < '111111') ]  #& (df['name']) 不知道如何强转
+    print(duaxianjingling_df)
+
+    filter_col_duanxianjingling = ['code', '股票简称', '板块']
+
+    try:
+        workbook = xw.Book('./data/stronger.xlsx')
+    except FileNotFoundError:
+        workbook = xw.Book()
+        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4', 'Sheet5', 'Sheet6', 'Sheet7', 'Sheet8', 'Sheet9', 'Sheet10',
+                       'Sheet11', 'Sheet12', 'Sheet13', 'Sheet14']
+        for sheet_name in sheet_names:
+            workbook.sheets.add(sheet_name, after=workbook.sheets[-1])
+        workbook.save('./data/stronger.xlsx')
+
+    sheet12 = workbook.sheets['Sheet12']
+    is_refresh = compare_and_notify("duanxianjingling", sheet12, duaxianjingling_df)
+    if True:
+        clear_and_setFormat(sheet12, False)
+        duaxianjingling_df = get_fill_url(duaxianjingling_df)
+        filter_col_duanxianjingling.append('url')
+        sheet12.range('A1').value = duaxianjingling_df[filter_col_duanxianjingling]
+
+    print('-- refresh duaxianjingling --', datetime.now(), "-------")
+
+
