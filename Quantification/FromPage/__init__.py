@@ -1030,3 +1030,250 @@ def duanxianjingling():
     print('-- refresh duaxianjingling --', datetime.now(), "-------")
 
 
+
+
+
+''''
+
+1.就像同花顺一样，一直更新，就像视频聊天一样 。 拉取所有，再栓选需要的 ...===> 想要这个，就需要记录上次的index,这次从index取到最后，实现推的效果。防止重复和遗漏
+2.自选股的提示 -- 匹配自选  + 连续大笔买入，或者火箭发射
+3.刷新频率、与其他的协调，是否耗时
+4.其他接口信息开发，比如北向资金、咨询、
+5.近期总结，能否使用代码量化，这么多接口和数据
+6.东方财富网还有哪些有用的数据可以爬取
+
+'''
+
+import qstock as qs
+
+
+def get_dabimairu_dui():
+    changes_list = ['火箭发射', '快速反弹', '加速下跌', '高台跳水', '大笔买入',
+                    '大笔卖出', '封涨停板', '封跌停板', '打开跌停板', '打开涨停板', '有大买盘',
+                    '有大卖盘', '竞价上涨', '竞价下跌', '高开5日线', '低开5日线', '向上缺口',
+                    '向下缺口', '60日新高', '60日新低', '60日大幅上涨', '60日大幅下跌']
+    dxjl_all = qs.realtime_change()
+    filter_col_duanxianjingling = ['时间', '代码', '名称', '板块']
+    dxjl_all = dxjl_all[filter_col_duanxianjingling]
+    '''
+    每三秒刷新一次
+    '''
+    dxjl_part = dxjl_all[(dxjl_all['板块'] == '大笔买入')]
+
+    '''
+    统计指定时间的大笔买入
+    '''
+    dxjl_part = dxjl_part.head(20)
+    dxjl_part_ct = dxjl_part['名称'].value_counts()
+    # print(dxjl_part_ct)
+
+    # 判断出现次数是否大于2，如果是，打印一句话
+    for category, count in dxjl_part_ct.items():
+        if count > 2:
+            # print(f"类别 '{category}' 出现次数大于2。次数是'{count}'")
+            msg = "============大笔大于2============\n"+f" '{category}' 出现次数大于2。次数是'{count}'"
+            qywx.send_text(msg)
+
+    '''
+    统计当天前几的大单买入，参考意义不大
+    '''
+    # dxjl_part_counts = dxjl_part['名称'].value_counts()
+    # print(dxjl_part_counts.head().to_string())
+
+    # print(dxjl_part.head(20))
+
+    '''
+    自选在当日的  短线精灵  中的表现，统计意义较大，及时性不好
+    '''
+    # dxjl_zx = dxjl_all[(dxjl_all['代码'].isin(list_zixuangu))]
+    # if not dxjl_zx.empty:
+    #     msg2 = dxjl_zx.reset_index(drop=True).to_string(header=False, index=False)
+    #     msg = "============火箭-自选============\n" + msg2
+    #     qywx.send_text(msg)
+
+    '''
+    自选 短线精灵中出现 ，关注
+    '''
+    dxjl_zx = dxjl_part[(dxjl_part['代码'].isin(list_zixuangu))]
+    if not dxjl_zx.empty:
+        msg2 = dxjl_zx.reset_index(drop=True).to_string(header=False, index=False)
+        msg = "============大笔-自选============\n" + msg2
+        qywx.send_text(msg)
+
+
+def get_xx():
+    changes_list = ['火箭发射', '快速反弹', '加速下跌', '高台跳水', '大笔买入',
+                    '大笔卖出', '封涨停板', '封跌停板', '打开跌停板', '打开涨停板', '有大买盘',
+                    '有大卖盘', '竞价上涨', '竞价下跌', '高开5日线', '低开5日线', '向上缺口',
+                    '向下缺口', '60日新高', '60日新低', '60日大幅上涨', '60日大幅下跌']
+    dxjl_all = qs.realtime_change()
+    dxjl_part = dxjl_all[(dxjl_all['板块'] == '火箭发射') | ((dxjl_all['板块'] == '大笔买入')) | ((dxjl_all['板块'] == '封涨停板'))  | ((dxjl_all['板块'] == '打开跌停板')) ]
+
+    # print(dxjl_part.head(20))
+    filter_col_duanxianjingling = ['时间', '代码', '名称', '板块']
+    msg2 = "============精灵============\n"+dxjl_part.head(10)[filter_col_duanxianjingling].reset_index(drop=True).to_string(header=False, index=False)
+    qywx.send_text(msg2)
+
+
+''''
+感知总体
+
+1.两市成交额、增量
+2.北向资金
+3.资金流入板块
+4.资金流入个股最多
+5.上涨下跌家数
+6.新闻电报
+
+'''
+
+
+def quanjushuju():
+    # 获取概念板块最新行情指标
+    # df = qs.realtime_data('概念板块')
+    # 查看前几行
+    # print(df.head(50))
+
+    # df=qs.realtime_data('ETF')
+    #查看前几行
+    # print(df.head(50))
+
+    df = qs.realtime_data(code=['深证指数','上证指数'])
+    filter_colume = ['名称','最新','最高','最低','今开','成交额']
+    # print(df[filter_colume])
+
+    qywx.send_text_B("============quanju============\n"+df[filter_colume].reset_index(drop=True).to_string(index=False))
+
+    # 个股20日资金流数据
+    # df = qs.ths_money('个股', n=1)
+    # print(df.head(20))
+    # # 行业板块10日资金流数据
+    # df = qs.ths_money('行业', n=1)
+    # print(df.head(20))
+    # # 概念板块5日资金流数据
+    # df = qs.ths_money('概念', n=1)
+    # print(df.head(20))
+
+    # 北向资金每日净流入数据
+    df = qs.north_money()
+    # print(df.tail())
+    qywx.send_text_B("============beixiang-jin5tian============\n" + df.tail().to_string(index=False))
+
+    df = qs.north_money('行业',1)
+    df = df.sort_values(by='涨跌幅',ascending=[False])
+    # df.tail()
+    # print(df.head(10))
+    filter_colume = ['名称','涨跌幅', '增持最大股市值', '减持最大股市值', '增持最大股占总市值比','减持最大股占总市值比']
+    qywx.send_text_B("============beixiang-hangye============\n" + df.head(10)[filter_colume].reset_index(drop=True).to_string(index=False))
+
+    df = qs.north_money('概念', 1)
+    df = df.sort_values(by='涨跌幅',ascending=[False])
+    qywx.send_text_B("============beixiang-gainian============\n" + df.head(10)[filter_colume].reset_index(drop=True).to_string(index=False))
+
+    df = qs.north_money('个股', 1)
+    df = df.sort_values(by='涨幅',ascending=[False])
+    filter_colume = ['代码', '名称', '涨幅', '今日增持股数', '今日增持市值','今日增持市值增幅','所属板块']
+    qywx.send_text_B("============beixiang-gegu============\n" + df.head(100)[filter_colume].reset_index(drop=True).to_string(index=False))
+
+    # df = qs.north_money('个股', 1)
+    df = df.sort_values(by='今日增持市值', ascending=[False])
+    filter_colume = ['代码', '名称', '涨幅', '今日增持股数', '今日增持市值', '今日增持市值增幅', '所属板块']
+    qywx.send_text_B(
+        "============beixiang-gegu2============\n" + df.head(100)[filter_colume].reset_index(drop=True).to_string(
+            index=False))
+
+    # 默认参数输出财联社电报新闻数据
+    df = qs.news_data()
+    qywx.send_text_B("============xiaoxi - cailianshe============\n" + df.tail(20).to_string())
+
+    # 市场快讯数据
+    # df = qs.news_data('js')
+    # print(df.tail(20))
+
+
+def daban_paichedan():
+    '''
+    获取指定个股买一数量，排撤，告警
+    
+     1.如何预估自己位置？ 参考软件
+     2.
+
+    '''
+    paiche = "600418"
+    df = qs.stock_snapshot(paiche)
+    # print(df)
+    filter_colume = ['代码','名称','买1数量']
+    '''
+    记录是否封单加大
+    '''
+    print(df[filter_colume])
+    # 使用逻辑运算符 & 和适当的条件函数
+    condition = (df['买1数量'] < 99999999)
+    # 选择符合条件的行
+    filtered_df = df[condition]
+    if not filtered_df.empty:
+        # print("------快开板了---撤单---")
+        qywx.send_text(f"------快开板了---撤单--"+paiche+df['名称'].to_string())
+
+
+
+'''
+暂时不用了
+'''
+def get_duanxianjingling():
+
+    duaxianjingling_df = qs.realtime_change('火箭发射')
+    duaxianjingling_df = qs.realtime_change('火箭发射')
+    duaxianjingling_df.rename(columns={'代码': 'code','名称': '股票简称'}, inplace=True)
+
+    duaxianjingling_df = duaxianjingling_df[((duaxianjingling_df['code'] < '609999') & (duaxianjingling_df['code'] > '309999')) | (duaxianjingling_df['code'] < '111111') ]  #& (df['name']) 不知道如何强转
+    # print(duaxianjingling_df)
+
+    filter_col_duanxianjingling = ['时间','code', '股票简称', '板块']
+
+    ''''
+    短线精灵作为及时性，保存的意义不大
+    '''
+
+    try:
+        workbook = xw.Book('./data/stronger.xlsx')
+    except FileNotFoundError:
+        workbook = xw.Book()
+        sheet_names = ['Sheet2', 'Sheet3', 'Sheet4', 'Sheet5', 'Sheet6', 'Sheet7', 'Sheet8', 'Sheet9', 'Sheet10',
+                       'Sheet11', 'Sheet12', 'Sheet13', 'Sheet14']
+        for sheet_name in sheet_names:
+            workbook.sheets.add(sheet_name, after=workbook.sheets[-1])
+        workbook.save('./data/stronger.xlsx')
+
+    sheet12 = workbook.sheets['Sheet12']
+    # is_refresh = compare_and_notify("duanxianjingling", sheet12, duaxianjingling_df)
+    duaxianjingling_df = duaxianjingling_df[filter_col_duanxianjingling].head(20)
+    duaxianjingling_df = duaxianjingling_df.reset_index(drop=True)
+    msg = "============火箭============\n"+duaxianjingling_df.to_string(header=False, index=False)
+
+    qywx.send_text(msg)
+
+    msg2 = duaxianjingling_df[(duaxianjingling_df['code'].isin(list_zixuangu))].reset_index(drop=True).to_string(header=False, index=False)
+    if not duaxianjingling_df.empty:
+        msg = "============火箭-自选============\n" + msg2
+        qywx.send_text(msg)
+
+    if True:
+        clear_and_setFormat(sheet12)
+        duaxianjingling_df = get_fill_url(duaxianjingling_df)
+        filter_col_duanxianjingling.append('url')
+
+        # current_time_str = duaxianjingling_df['时间'].strftime("%H:%M:%S")
+        # print("==>>>time is ", current_time_str)
+        # duaxianjingling_df['时间'] = current_time_str
+        # 将时间对象转换为字符串
+        duaxianjingling_df['时间'] = duaxianjingling_df['时间'].apply(lambda x: x.strftime("%H:%M:%S"))
+
+
+        sheet12.range('A1').value = duaxianjingling_df[filter_col_duanxianjingling]
+
+    print('-- refresh duaxianjingling --', datetime.now(), "-------")
+
+
+
+
