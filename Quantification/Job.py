@@ -53,6 +53,17 @@ def my_taks():
 
 def my_wufenzhong():
     getJiange()
+
+
+def get_daban():
+    daban_paichedan()
+def get_quanju():
+    quanjushuju()
+def duanxianjingling():
+    # get_xx()
+    # get_dabimairu_dui()
+    get_quanju()
+    # get_daban()
     
 #定时任务
 schedule.every(1).seconds.do(my_task)
