@@ -1145,6 +1145,7 @@ def get_xx():
     if not dxjl_zx.empty:
         msg2 = dxjl_zx.reset_index(drop=True).to_string(header=False, index=False)
         msg = "============精灵-自选============\n" + msg2
+        qywx.send_text_B(msg)
         qywx.send_text(msg)
 
 ''''
