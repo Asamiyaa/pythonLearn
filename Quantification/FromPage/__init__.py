@@ -1105,6 +1105,51 @@ def get_dabimairu_dui():
 如何避免丢失呢
 '''
 
+# def save_point(index):
+#     file = open("./index.txt", 'w')
+#     file.write(str(index))
+#     file.close()
+# def get_point():
+#     with open('./index.txt') as f:
+#         return f.read()
+
+
+# def get_xx():
+#     changes_list = ['火箭发射', '快速反弹', '加速下跌', '高台跳水', '大笔买入',
+#                     '大笔卖出', '封涨停板', '封跌停板', '打开跌停板', '打开涨停板', '有大买盘',
+#                     '有大卖盘', '竞价上涨', '竞价下跌', '高开5日线', '低开5日线', '向上缺口',
+#                     '向下缺口', '60日新高', '60日新低', '60日大幅上涨', '60日大幅下跌']
+#     dxjl_all = qs.realtime_change()
+
+#     # print(dxjl_all.head(10))
+#     '''
+#     从新index开始计算输出
+#     '''
+#     index = int(get_point())
+#     save_point(dxjl_all.shape[0])
+
+#     dxjl_all = dxjl_all.iloc[0:(dxjl_all.shape[0] - index)]
+
+#     dxjl_part = dxjl_all[(dxjl_all['板块'] == '火箭发射') | ((dxjl_all['板块'] == '大笔买入')) | ((dxjl_all['板块'] == '封涨停板'))  | ((dxjl_all['板块'] == '打开跌停板')) ]
+
+#     filter_col_duanxianjingling = ['时间', '代码', '名称', '板块']
+#     if not dxjl_part.empty:
+#         msg2 = "============精灵============\n"+dxjl_part[filter_col_duanxianjingling].reset_index(drop=True).to_string(header=False, index=False)
+#         qywx.send_text_B(msg2)
+
+#     '''
+#     这样可以看到当天所有的改票的异动情况！！！
+#         # dxjl_zx = dxjl_part[(dxjl_part['代码'].isin(list_zixuangu))]
+#     '''
+#     dxjl_zx = dxjl_part[(dxjl_part['代码'].isin(list_zixuangu))]
+#     if not dxjl_zx.empty:
+#         msg2 = dxjl_zx.reset_index(drop=True).to_string(header=False, index=False)
+#         msg = "============精灵-自选============\n" + msg2
+#         qywx.send_text_B(msg)
+#         qywx.send_text(msg)
+
+
+
 def save_point(index):
     file = open("./index.txt", 'w')
     file.write(str(index))
@@ -1119,8 +1164,18 @@ def get_xx():
                     '大笔卖出', '封涨停板', '封跌停板', '打开跌停板', '打开涨停板', '有大买盘',
                     '有大卖盘', '竞价上涨', '竞价下跌', '高开5日线', '低开5日线', '向上缺口',
                     '向下缺口', '60日新高', '60日新低', '60日大幅上涨', '60日大幅下跌']
-    dxjl_all = qs.realtime_change()
+    # dxjl_all = qs.realtime_change()
+    dxjl_all1 = qs.realtime_change('火箭发射')
+    dxjl_all2 = qs.realtime_change('大笔买入')
+    dxjl_all3 = qs.realtime_change('封涨停板')
+    dxjl_concat = [dxjl_all1,dxjl_all2,dxjl_all3]
 
+    dxjl_all = pd.concat(dxjl_concat)
+    '''
+    按照时间排序
+    '''
+    dxjl_all.sort_values(by='时间', ascending=False, inplace=True)
+    # print(dxjl_all)
     # print(dxjl_all.head(10))
     '''
     从新index开始计算输出
@@ -1130,11 +1185,13 @@ def get_xx():
 
     dxjl_all = dxjl_all.iloc[0:(dxjl_all.shape[0] - index)]
 
-    dxjl_part = dxjl_all[(dxjl_all['板块'] == '火箭发射') | ((dxjl_all['板块'] == '大笔买入')) | ((dxjl_all['板块'] == '封涨停板'))  | ((dxjl_all['板块'] == '打开跌停板')) ]
+    # dxjl_part = dxjl_all[(dxjl_all['板块'] == '火箭发射') | ((dxjl_all['板块'] == '大笔买入')) | ((dxjl_all['板块'] == '封涨停板'))  | ((dxjl_all['板块'] == '打开跌停板')) ]
+    dxjl_part = dxjl_all[((dxjl_all['代码'] < '609999') & (dxjl_all['代码'] > '309999')) | (dxjl_all['代码'] < '111111')]
 
     filter_col_duanxianjingling = ['时间', '代码', '名称', '板块']
+    dxjl_part = dxjl_part[filter_col_duanxianjingling]
     if not dxjl_part.empty:
-        msg2 = "============精灵============\n"+dxjl_part[filter_col_duanxianjingling].reset_index(drop=True).to_string(header=False, index=False)
+        msg2 = "============精灵============\n"+dxjl_part.reset_index(drop=True).to_string(header=False, index=False)
         qywx.send_text_B(msg2)
 
     '''
@@ -1145,8 +1202,10 @@ def get_xx():
     if not dxjl_zx.empty:
         msg2 = dxjl_zx.reset_index(drop=True).to_string(header=False, index=False)
         msg = "============精灵-自选============\n" + msg2
-        qywx.send_text_B(msg)
+        # qywx.send_text_B(msg)
         qywx.send_text(msg)
+
+
 
 ''''
 感知总体
